@@ -1,0 +1,6 @@
+# === GLOBAL ===
+.venv
+
+# === BACKEND ===
+node_modules
+/src/generated/prisma
