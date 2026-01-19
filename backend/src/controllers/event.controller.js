@@ -21,6 +21,27 @@ const getEvents = async (req, res) => {
   }
 };
 
+const getEventById = async (req, res) => {
+  try {
+    const event = await prisma.event.findUnique({
+      where: { id: Number(req.params.id) },
+      include: {
+        author: {
+          select: { username: true },
+        },
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    res.status(200).json(event);
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 const createEvent = async (req, res) => {
   try {
     const { title, description, date } = req.body;
@@ -78,7 +99,7 @@ const updateEvent = async (req, res) => {
 
     const { title, description, date } = req.body;
 
-    await prisma.event.update({
+    const updatedEvent = await prisma.event.update({
       where: { id: Number(eventId) },
       data: {
         title,
@@ -90,7 +111,7 @@ const updateEvent = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "Event updated successfully",
-      data: updateEvent,
+      data: updatedEvent,
     });
   } catch (error) {
     if (error.code === "P2025") {
@@ -100,4 +121,4 @@ const updateEvent = async (req, res) => {
   }
 };
 
-export { createEvent, deleteEvent, getEvents, updateEvent };
+export { createEvent, deleteEvent, getEventById, getEvents, updateEvent };
