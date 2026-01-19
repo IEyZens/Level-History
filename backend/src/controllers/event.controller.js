@@ -12,6 +12,11 @@ const getEvents = async (req, res) => {
             username: true,
           },
         },
+        _count: {
+          select: {
+            likes: true,
+          },
+        },
       },
     });
 
@@ -28,6 +33,11 @@ const getEventById = async (req, res) => {
       include: {
         author: {
           select: { username: true },
+        },
+        _count: {
+          select: {
+            likes: true,
+          },
         },
       },
     });

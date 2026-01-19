@@ -6,6 +6,7 @@ import prisma from "./lib/prisma.js";
 
 import authRoutes from "./routes/auth.route.js";
 import eventRoutes from "./routes/event.route.js";
+import likesRoutes from "./routes/like.route.js";
 import postRoutes from "./routes/post.route.js";
 
 const app = express();
@@ -24,18 +25,10 @@ app.use(cookieParser());
 app.use("/auth", authRoutes);
 app.use("/events", eventRoutes);
 app.use("/posts", postRoutes);
+app.use("/likes", likesRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "API OK!" });
-});
-
-app.get("/test-db", async (req, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: "Database connection error" });
-  }
 });
 
 const PORT = process.env.PORT || 5000;

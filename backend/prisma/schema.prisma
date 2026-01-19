@@ -21,6 +21,7 @@ model User {
 
   events Event[]
   posts Post[]
+  likes Like[]
 }
 
 model Event {
@@ -35,6 +36,7 @@ model Event {
   author User @relation(fields: [authorId], references: [id])
 
   posts Post[]
+  likes Like[]
 }
 
 model Post {
@@ -47,4 +49,17 @@ model Post {
 
   eventId Int
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  eventId Int
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
 }
