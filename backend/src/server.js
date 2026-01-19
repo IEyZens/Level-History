@@ -6,6 +6,7 @@ import prisma from "./lib/prisma.js";
 
 import authRoutes from "./routes/auth.route.js";
 import eventRoutes from "./routes/event.route.js";
+import postRoutes from "./routes/post.route.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(cookieParser());
 
 app.use("/auth", authRoutes);
 app.use("/events", eventRoutes);
+app.use("/posts", postRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "API OK!" });
