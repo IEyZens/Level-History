@@ -35,7 +35,7 @@ const register = async (req, res) => {
       },
     });
 
-    const token = generateToken(user.id, res);
+    const token = generateToken(user.id, user.role, res);
 
     res.status(201).json({
       status: "success",
@@ -49,6 +49,9 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
+    if (error.code === "P2002") {
+      return res.status(400).json({ error: "Username or Email already taken" });
+    }
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -72,7 +75,7 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const token = generateToken(user.id, res);
+    const token = generateToken(user.id, user.role, res);
 
     res.status(200).json({
       status: "success",
