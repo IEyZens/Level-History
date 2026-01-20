@@ -20,7 +20,7 @@ model User {
   createdAt DateTime @default(now())
 
   events Event[]
-  posts Post[]
+  comments Comment[]
   likes Like[]
 }
 
@@ -35,11 +35,11 @@ model Event {
   authorId Int
   author User @relation(fields: [authorId], references: [id])
 
-  posts Post[]
+  comments Comment[]
   likes Like[]
 }
 
-model Post {
+model Comment {
   id Int @id @default(autoincrement())
   content String
   createdAt DateTime @default(now())
@@ -49,6 +49,8 @@ model Post {
 
   eventId Int
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  likes Like[]
 }
 
 model Like {
@@ -58,8 +60,12 @@ model Like {
   userId Int
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  eventId Int
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  commentId Int?
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
+  eventId Int?
+  event Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
   @@unique([userId, eventId])
 }

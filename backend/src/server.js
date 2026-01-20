@@ -2,12 +2,11 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
-import prisma from "./lib/prisma.js";
 
 import authRoutes from "./routes/auth.route.js";
+import commentRoutes from "./routes/comment.route.js";
 import eventRoutes from "./routes/event.route.js";
-import likesRoutes from "./routes/like.route.js";
-import postRoutes from "./routes/post.route.js";
+import likeRoutes from "./routes/like.route.js";
 
 const app = express();
 
@@ -24,8 +23,8 @@ app.use(cookieParser());
 
 app.use("/auth", authRoutes);
 app.use("/events", eventRoutes);
-app.use("/posts", postRoutes);
-app.use("/likes", likesRoutes);
+app.use("/comments", commentRoutes);
+app.use("/likes", likeRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "API OK!" });

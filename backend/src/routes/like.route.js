@@ -4,6 +4,6 @@ import { verifyToken } from "../middlewares/verifyToken.js";
 
 const router = express.Router();
 
-router.post("/:id", verifyToken, toggleLike);
+router.post("/:type/:id", verifyToken, toggleLike);
 
 export default router;
