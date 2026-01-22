@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.route.js";
 import commentRoutes from "./routes/comment.route.js";
 import eventRoutes from "./routes/event.route.js";
 import likeRoutes from "./routes/like.route.js";
+import personalityRoutes from "./routes/personality.route.js";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/auth", authRoutes);
 app.use("/events", eventRoutes);
 app.use("/comments", commentRoutes);
 app.use("/likes", likeRoutes);
+app.use("/personalities", personalityRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "API OK!" });

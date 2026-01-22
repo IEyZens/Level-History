@@ -11,6 +11,12 @@ enum Role {
   ADMIN
 }
 
+enum PersonalityCategory {
+  VISIONARY
+  BUILDER
+  EXECUTIVE
+}
+
 model User {
   id Int @id @default(autoincrement())
   email String @unique
@@ -68,4 +74,17 @@ model Like {
 
   @@unique([userId, commentId])
   @@unique([userId, eventId])
+}
+
+model Personality {
+  id Int @id @default(autoincrement())
+  name String
+  role String?
+  biography String @db.Text
+  image String
+
+  category PersonalityCategory @default(VISIONARY)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
