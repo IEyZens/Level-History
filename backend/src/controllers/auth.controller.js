@@ -6,6 +6,20 @@ const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
+    if (
+      !username ||
+      typeof username !== "string" ||
+      username.trim() === "" ||
+      !email ||
+      typeof email !== "string" ||
+      email.trim() === "" ||
+      !password ||
+      typeof password !== "string" ||
+      password.trim() === ""
+    ) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
     const userExits = await prisma.user.findFirst({
       where: {
         OR: [{ email: email }, { username: username }],
