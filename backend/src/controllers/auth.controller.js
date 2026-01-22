@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import prisma from "../lib/prisma.js";
 import { generateToken } from "../utils/generateToken.js";
 
@@ -63,6 +63,7 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error(error);
     if (error.code === "P2002") {
       return res.status(400).json({ error: "Username or Email already taken" });
     }
@@ -74,13 +75,16 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password || email.trim() === "" || password.trim() === "") {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
     const user = await prisma.user.findUnique({
       where: { email: email },
     });
 
     if (!user) {
-      res.status(401).json({ error: "Invalid email or password" });
-      return;
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -103,6 +107,7 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -139,6 +144,7 @@ const me = async (req, res) => {
       data: user,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
