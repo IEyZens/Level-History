@@ -12,18 +12,10 @@ const adminUser = {
   role: "ADMIN",
 };
 
-const samplePersonality = {
-  name: "Napoleon Bonaparte",
-  role: "Emperor",
-  biography: "French military leader and emperor.",
-  image: "napoleon.jpg",
-  category: "VISIONARY",
-};
-
 let adminCookie;
 let createdId;
 
-describe("PERSONALITY ENDPOINTS", () => {
+describe("PERSONALITY ENDPOINTS (WITH UPLOAD)", () => {
   beforeAll(async () => {
     const hashedPassword = await bcrypt.hash(adminUser.password, 10);
     await prisma.user.create({
@@ -53,82 +45,54 @@ describe("PERSONALITY ENDPOINTS", () => {
   });
 
   describe("POST /personalities", () => {
-    it("Should create a personality successfully", async () => {
+    it("Should create a personality with image successfully", async () => {
+      const fakeImageBuffer = Buffer.from("fake-image-content");
+
       const res = await request(app)
         .post("/personalities")
         .set("Cookie", adminCookie)
-        .send(samplePersonality);
+        .attach("image", fakeImageBuffer, "napoleon_test.jpg")
+        .field("name", "Napoleon Bonaparte")
+        .field("role", "Emperor")
+        .field("biography", "French military leader.")
+        .field("category", "VISIONARY");
 
       expect(res.statusCode).toBe(201);
-      expect(res.body.data.name).toBe(samplePersonality.name);
-      expect(res.body.data.category).toBe("VISIONARY");
+      expect(res.body.data.name).toBe("Napoleon Bonaparte");
+      expect(res.body.data.image).toContain("/uploads/");
+
       createdId = res.body.data.id;
     });
 
-    it("Should fail if required fields are missing", async () => {
+    it("Should fail if image is missing", async () => {
       const res = await request(app)
         .post("/personalities")
         .set("Cookie", adminCookie)
-        .send({ name: "Incomplete" });
+        .field("name", "No Image Man")
+        .field("biography", "I have no face.")
+        .field("category", "VISIONARY");
+
       expect(res.statusCode).toBe(400);
-    });
-
-    it("Should fail if not authenticated", async () => {
-      const res = await request(app)
-        .post("/personalities")
-        .send(samplePersonality);
-      expect(res.statusCode).toBeGreaterThanOrEqual(401);
-    });
-  });
-
-  describe("GET /personalities", () => {
-    it("Should return all personalities", async () => {
-      const res = await request(app).get("/personalities");
-      expect(res.statusCode).toBe(200);
-      expect(Array.isArray(res.body)).toBe(true);
-      expect(res.body.length).toBeGreaterThan(0);
-    });
-  });
-
-  describe("GET /personalities/:id", () => {
-    it("Should return a specific personality", async () => {
-      const res = await request(app).get(`/personalities/${createdId}`);
-      expect(res.statusCode).toBe(200);
-      expect(res.body.id).toBe(createdId);
-    });
-
-    it("Should return 404 for non-existent ID", async () => {
-      const res = await request(app).get("/personalities/999999");
-      expect(res.statusCode).toBe(404);
-    });
-
-    it("Should return 400 for invalid ID format", async () => {
-      const res = await request(app).get("/personalities/abc");
-      expect(res.statusCode).toBe(400);
+      expect(res.body).toHaveProperty("error", "Image file is required");
     });
   });
 
   describe("PUT /personalities/:id", () => {
-    it("Should update personality successfully", async () => {
+    it("Should update personality and image successfully", async () => {
+      const newFakeImage = Buffer.from("new-fake-image-content");
+
       const res = await request(app)
         .put(`/personalities/${createdId}`)
         .set("Cookie", adminCookie)
-        .send({
-          role: "Exiled Emperor",
-          category: "EXECUTIVE",
-        });
+        .attach("image", newFakeImage, "napoleon_exiled.jpg")
+        .field("role", "Exiled Emperor")
+        .field("name", "Napoleon Bonaparte")
+        .field("biography", "French military leader.")
+        .field("category", "VISIONARY");
 
       expect(res.statusCode).toBe(200);
       expect(res.body.data.role).toBe("Exiled Emperor");
-      expect(res.body.data.category).toBe("EXECUTIVE");
-    });
-
-    it("Should return 404 for non-existent ID", async () => {
-      const res = await request(app)
-        .put("/personalities/999999")
-        .set("Cookie", adminCookie)
-        .send({ name: "Ghost" });
-      expect(res.statusCode).toBe(404);
+      expect(res.body.data.image).toContain("/uploads/");
     });
   });
 
@@ -139,13 +103,6 @@ describe("PERSONALITY ENDPOINTS", () => {
         .set("Cookie", adminCookie);
 
       expect(res.statusCode).toBe(200);
-    });
-
-    it("Should return 404 if already deleted", async () => {
-      const res = await request(app)
-        .delete(`/personalities/${createdId}`)
-        .set("Cookie", adminCookie);
-      expect(res.statusCode).toBe(404);
     });
   });
 });

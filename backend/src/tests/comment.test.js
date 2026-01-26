@@ -19,7 +19,7 @@ const testEvent = {
 
 let userCookie;
 let eventId;
-let commentId;
+let userId;
 
 describe("COMMENT ENDPOINTS", () => {
   beforeAll(async () => {
@@ -36,6 +36,7 @@ describe("COMMENT ENDPOINTS", () => {
     const user = await prisma.user.create({
       data: { ...testUser, password: hashedPassword },
     });
+    userId = user.id;
 
     const loginRes = await request(app).post("/auth/login").send({
       email: testUser.email,
@@ -72,7 +73,6 @@ describe("COMMENT ENDPOINTS", () => {
         .send({ content: "First comment!" });
 
       expect(res.statusCode).toBe(201);
-      commentId = res.body.data.id;
     });
 
     it("Should fail if content is empty", async () => {
@@ -109,10 +109,19 @@ describe("COMMENT ENDPOINTS", () => {
 
   describe("PUT /comments/:id", () => {
     it("Should update own comment successfully", async () => {
+      const tempComment = await prisma.comment.create({
+        data: {
+          content: "Original Content",
+          eventId: eventId,
+          authorId: userId,
+        },
+      });
+
       const res = await request(app)
-        .put(`/comments/${commentId}`)
+        .put(`/comments/${tempComment.id}`)
         .set("Cookie", userCookie)
         .send({ content: "Updated content" });
+
       expect(res.statusCode).toBe(200);
       expect(res.body.data.content).toBe("Updated content");
     });
