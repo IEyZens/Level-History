@@ -1,0 +1,300 @@
+openapi: 3.0.0
+info:
+  title: Level History API
+  description: Complete documentation of the Level History API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local server
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+
+security:
+  - cookieAuth: []
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                email: { type: string }
+                password: { type: string }
+      responses:
+        201:
+          description: Account created
+        400:
+          description: Validation error
+
+  /auth/login:
+    post:
+      summary: Login
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        200:
+          description: Logged in (HttpOnly Cookie set)
+        401:
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      summary: Logout
+      tags: [Auth]
+      responses:
+        200:
+          description: Logged out successfully
+
+  /auth/me:
+    get:
+      summary: Get current user profile
+      tags: [Auth]
+      responses:
+        200:
+          description: Logged-in user info
+        401:
+          description: Not authenticated
+
+  /events:
+    get:
+      summary: List of events
+      tags: [Events]
+      security: []
+      responses:
+        200:
+          description: List retrieved
+
+    post:
+      summary: Create an event (Admin)
+      tags: [Events]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                date: { type: string, format: date-time }
+      responses:
+        201:
+          description: Event created
+        403:
+          description: Access denied
+
+  /events/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema: { type: integer }
+        required: true
+    get:
+      summary: Event details
+      tags: [Events]
+      security: []
+      responses:
+        200:
+          description: Details retrieved
+        404:
+          description: Not found
+
+    put:
+      summary: Update an event (Admin)
+      tags: [Events]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                date: { type: string, format: date-time }
+      responses:
+        200:
+          description: Updated
+
+    delete:
+      summary: Delete an event (Admin)
+      tags: [Events]
+      responses:
+        200:
+          description: Deleted
+
+  /comments/event/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema: { type: integer }
+        required: true
+        description: Event ID
+    get:
+      summary: Get event comments
+      tags: [Comments]
+      security: []
+      responses:
+        200:
+          description: List of comments
+
+    post:
+      summary: Add a comment
+      tags: [Comments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content: { type: string }
+      responses:
+        201:
+          description: Comment created
+
+  /comments/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema: { type: integer }
+        required: true
+        description: Comment ID
+    put:
+      summary: Update own comment
+      tags: [Comments]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content: { type: string }
+      responses:
+        200:
+          description: Comment updated
+
+    delete:
+      summary: Delete own comment
+      tags: [Comments]
+      responses:
+        200:
+          description: Comment deleted
+
+  /likes/{type}/{id}:
+    post:
+      summary: Like / Unlike (Toggle)
+      tags: [Likes]
+      parameters:
+        - in: path
+          name: type
+          schema:
+            type: string
+            enum: [event, comment]
+          required: true
+          description: Object type (event or comment)
+        - in: path
+          name: id
+          schema: { type: integer }
+          required: true
+          description: Object ID
+      responses:
+        201:
+          description: Liked
+        200:
+          description: Unliked
+
+  /personalities:
+    get:
+      summary: List of personalities
+      tags: [Personalities]
+      security: []
+      responses:
+        200:
+          description: List retrieved
+
+    post:
+      summary: Create a personality (Admin + Image)
+      tags: [Personalities]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                role: { type: string }
+                biography: { type: string }
+                category:
+                  type: string
+                  enum: [VISIONARY, BUILDER, EXECUTIVE]
+                image:
+                  type: string
+                  format: binary
+      responses:
+        201:
+          description: Created successfully
+
+  /personalities/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema: { type: integer }
+        required: true
+    get:
+      summary: Get a personality
+      tags: [Personalities]
+      security: []
+      responses:
+        200:
+          description: Found
+
+    put:
+      summary: Update a personality (Admin + Optional Image)
+      tags: [Personalities]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                role: { type: string }
+                biography: { type: string }
+                category:
+                  type: string
+                  enum: [VISIONARY, BUILDER, EXECUTIVE]
+                image:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Updated
+
+    delete:
+      summary: Delete a personality (Admin)
+      tags: [Personalities]
+      responses:
+        200:
+          description: Deleted
