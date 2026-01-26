@@ -10,6 +10,7 @@ const getAllPersonalities = async (req, res) => {
 
     return res.status(200).json(allPersonalities);
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -17,6 +18,10 @@ const getAllPersonalities = async (req, res) => {
 const getPersonalityById = async (req, res) => {
   try {
     const personalityId = Number(req.params.id);
+
+    if (isNaN(personalityId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
+    }
 
     const personality = await prisma.personality.findUnique({
       where: { id: personalityId },
@@ -28,6 +33,7 @@ const getPersonalityById = async (req, res) => {
 
     res.status(200).json(personality);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -35,7 +41,6 @@ const getPersonalityById = async (req, res) => {
 const createPersonality = async (req, res) => {
   try {
     const { name, role, biography, image, category } = req.body;
-    const userRole = req.userRole;
 
     if (req.userRole !== "ADMIN") {
       return res.status(403).json({ error: "Access denied. Admins only." });
@@ -45,7 +50,7 @@ const createPersonality = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const newPersonnality = await prisma.personality.create({
+    const newPersonality = await prisma.personality.create({
       data: {
         name,
         role,
@@ -56,36 +61,26 @@ const createPersonality = async (req, res) => {
     });
 
     res.status(201).json({
-      data: {
-        id: newPersonnality.id,
-        name: newPersonnality.name,
-        role: newPersonnality.role,
-        biography: newPersonnality.biography,
-        image: newPersonnality.image,
-        category: newPersonnality.category,
-      },
+      status: "success",
+      data: newPersonality,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 const updatePersonality = async (req, res) => {
   try {
-    const userRole = req.userRole;
-    const { name, role, biography, image, category } = req.body;
     const personalityId = Number(req.params.id);
+    const { name, role, biography, image, category } = req.body;
 
-    if (userRole !== "ADMIN") {
-      return res.status(403).json({ error: "Access denied. Admins only." });
+    if (isNaN(personalityId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
 
-    const check = await prisma.personality.findUnique({
-      where: { id: personalityId },
-    });
-
-    if (!check) {
-      return res.status(404).json({ error: "Personality not found" });
+    if (req.userRole !== "ADMIN") {
+      return res.status(403).json({ error: "Access denied. Admins only." });
     }
 
     const updatedPersonality = await prisma.personality.update({
@@ -104,16 +99,23 @@ const updatePersonality = async (req, res) => {
       data: updatedPersonality,
     });
   } catch (error) {
+    console.error(error);
+    if (error.code === "P2025") {
+      return res.status(404).json({ error: "Personality not found" });
+    }
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 const deletePersonality = async (req, res) => {
   try {
-    const userRole = req.userRole;
     const personalityId = Number(req.params.id);
 
-    if (userRole !== "ADMIN") {
+    if (isNaN(personalityId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
+    }
+
+    if (req.userRole !== "ADMIN") {
       return res.status(403).json({ error: "Access denied. Admins only." });
     }
 
@@ -123,6 +125,10 @@ const deletePersonality = async (req, res) => {
 
     res.status(200).json({ message: "Personality deleted successfully" });
   } catch (error) {
+    console.error(error);
+    if (error.code === "P2025") {
+      return res.status(404).json({ error: "Personality not found" });
+    }
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

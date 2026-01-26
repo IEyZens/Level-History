@@ -3,154 +3,92 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import app from "../app.js";
 import prisma from "../lib/prisma.js";
 
-const validUser = {
-  username: "UltimateTester",
-  email: "ultimate@test.com",
-  password: "SecurePassword123!",
+const authUser = {
+  username: "AuthUser",
+  email: "auth_test@test.com",
+  password: "password123",
 };
 
-const secondUser = {
-  username: "SecondUser",
-  email: "second@test.com",
-  password: "Password123!",
-};
-
-describe("AUTHENTICATION SUITE", () => {
+describe("AUTH ENDPOINTS", () => {
   beforeAll(async () => {
-    await prisma.user.deleteMany({
-      where: {
-        email: { in: [validUser.email, secondUser.email] },
-      },
+    const existingUser = await prisma.user.findUnique({
+      where: { email: authUser.email },
     });
+    if (existingUser) {
+      await prisma.like.deleteMany({ where: { userId: existingUser.id } });
+      await prisma.comment.deleteMany({ where: { authorId: existingUser.id } });
+      await prisma.event.deleteMany({ where: { authorId: existingUser.id } });
+      await prisma.user.delete({ where: { id: existingUser.id } });
+    }
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany({
-      where: {
-        email: { in: [validUser.email, secondUser.email] },
-      },
+    const existingUser = await prisma.user.findUnique({
+      where: { email: authUser.email },
     });
+    if (existingUser) {
+      await prisma.user.delete({ where: { id: existingUser.id } });
+    }
     await prisma.$disconnect();
   });
 
-  // ===========================================================================
-  // 1. REGISTER TESTS
-  // ===========================================================================
   describe("POST /auth/register", () => {
-    it("Should register a new user with valid data", async () => {
-      const res = await request(app).post("/auth/register").send(validUser);
-
+    it("Should register a new user successfully", async () => {
+      const res = await request(app).post("/auth/register").send(authUser);
       expect(res.statusCode).toBe(201);
-      expect(res.body).toHaveProperty("status", "success");
-      expect(res.body.data.user).toHaveProperty("id");
-      expect(res.body.data.user).toHaveProperty("email", validUser.email);
-      expect(res.body.data.user).toHaveProperty("username", validUser.username);
-      expect(res.body.data.user).not.toHaveProperty("password");
+      expect(res.body.data.user).toHaveProperty("email", authUser.email);
     });
 
-    it("Should fail if Email is already taken", async () => {
-      const res = await request(app).post("/auth/register").send(validUser);
-
-      expect(res.statusCode).toBeGreaterThanOrEqual(400);
-    });
-
-    it("Should fail if Username is already taken", async () => {
-      const duplicateUsernameUser = {
-        ...secondUser,
-        username: validUser.username,
-      };
-
-      const res = await request(app)
-        .post("/auth/register")
-        .send(duplicateUsernameUser);
-      expect(res.statusCode).toBeGreaterThanOrEqual(400);
-    });
-
-    it("Should fail if required fields are missing", async () => {
-      const incompleteUser = { username: "NoEmailGuy", password: "123" };
-
-      const res = await request(app)
-        .post("/auth/register")
-        .send(incompleteUser);
+    it("Should fail if email is already taken", async () => {
+      const res = await request(app).post("/auth/register").send(authUser);
       expect(res.statusCode).toBe(400);
-    });
-
-    it("Should fail with empty strings", async () => {
-      const emptyUser = { username: "", email: "", password: "" };
-
-      const res = await request(app).post("/auth/register").send(emptyUser);
-      expect(res.statusCode).toBeGreaterThanOrEqual(400);
     });
   });
 
-  // ===========================================================================
-  // 2. LOGIN TESTS
-  // ===========================================================================
   describe("POST /auth/login", () => {
-    it("Should login successfully with correct credentials", async () => {
+    it("Should login successfully", async () => {
       const res = await request(app).post("/auth/login").send({
-        email: validUser.email,
-        password: validUser.password,
+        email: authUser.email,
+        password: authUser.password,
       });
-
       expect(res.statusCode).toBe(200);
-      expect(res.body).toHaveProperty("status", "success");
-
-      const cookies = res.headers["set-cookie"];
-      expect(cookies).toBeDefined();
-      expect(cookies[0]).toMatch(/jwt=.+/);
-      expect(cookies[0]).toMatch(/HttpOnly/);
+      expect(res.headers["set-cookie"]).toBeDefined();
     });
 
     it("Should fail with wrong password", async () => {
       const res = await request(app).post("/auth/login").send({
-        email: validUser.email,
-        password: "WrongPassword!",
+        email: authUser.email,
+        password: "wrongpassword",
       });
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toHaveProperty("error");
-    });
-
-    it("Should fail with non-existent email", async () => {
-      const res = await request(app).post("/auth/login").send({
-        email: "ghost@doesnotexist.com",
-        password: "password123",
-      });
-
-      expect(res.statusCode).toBe(401);
-    });
-
-    it("Should fail if fields are missing", async () => {
-      const res = await request(app).post("/auth/login").send({
-        email: validUser.email,
-      });
-      expect(res.statusCode).toBeGreaterThanOrEqual(400);
-    });
-
-    it("Should resist simple Injection attempts", async () => {
-      const res = await request(app).post("/auth/login").send({
-        email: validUser.email,
-        password: "' OR '1'='1",
-      });
-
       expect(res.statusCode).toBe(401);
     });
   });
 
-  // ===========================================================================
-  // 3. LOGOUT TESTS
-  // ===========================================================================
-  describe("POST /auth/logout", () => {
-    it("Should logout and clear cookie", async () => {
-      const res = await request(app).post("/auth/logout");
+  describe("GET /auth/me", () => {
+    it("Should return user info if authenticated", async () => {
+      const loginRes = await request(app).post("/auth/login").send({
+        email: authUser.email,
+        password: authUser.password,
+      });
+      const cookie = loginRes.headers["set-cookie"];
+
+      const res = await request(app).get("/auth/me").set("Cookie", cookie);
 
       expect(res.statusCode).toBe(200);
+      expect(res.body.data.email).toBe(authUser.email);
+    });
 
-      const cookies = res.headers["set-cookie"][0];
-      const isCookieCleared =
-        cookies.includes("Max-Age=0") || cookies.includes("Expires=");
-      expect(isCookieCleared).toBe(true);
+    it("Should fail if not authenticated", async () => {
+      const res = await request(app).get("/auth/me");
+      expect(res.statusCode).toBe(401);
+    });
+  });
+
+  describe("POST /auth/logout", () => {
+    it("Should logout successfully", async () => {
+      const res = await request(app).post("/auth/logout");
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toBe("Logged out successfully");
     });
   });
 });

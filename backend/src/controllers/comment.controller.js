@@ -4,11 +4,18 @@ const createComment = async (req, res) => {
   try {
     const eventId = Number(req.params.id);
     const { content } = req.body;
-
     const authorId = req.userId;
 
-    if (!content) {
+    if (isNaN(eventId)) {
+      return res.status(400).json({ error: "Invalid Event ID format" });
+    }
+
+    if (!content || content.trim() === "") {
       return res.status(400).json({ error: "Content is required" });
+    }
+
+    if (!authorId) {
+      return res.status(401).json({ error: "User not authenticated" });
     }
 
     const newComment = await prisma.comment.create({
@@ -20,6 +27,7 @@ const createComment = async (req, res) => {
     });
 
     res.status(201).json({
+      status: "success",
       data: {
         id: newComment.id,
         content: newComment.content,
@@ -28,16 +36,24 @@ const createComment = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error(error);
+    if (error.code === "P2003") {
+      return res.status(404).json({ error: "Event not found" });
+    }
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 const getCommentsByEvent = async (req, res) => {
   try {
-    const eventId = req.params.id;
+    const eventId = Number(req.params.id);
 
-    const eventById = await prisma.comment.findMany({
-      where: { eventId: Number(eventId) },
+    if (isNaN(eventId)) {
+      return res.status(400).json({ error: "Invalid Event ID format" });
+    }
+
+    const comments = await prisma.comment.findMany({
+      where: { eventId },
       include: {
         author: {
           select: { username: true, role: true },
@@ -51,8 +67,9 @@ const getCommentsByEvent = async (req, res) => {
       },
     });
 
-    res.status(200).json(eventById);
+    res.status(200).json(comments);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -62,6 +79,10 @@ const deleteComment = async (req, res) => {
     const commentId = Number(req.params.id);
     const authorId = req.userId;
     const userRole = req.userRole;
+
+    if (isNaN(commentId)) {
+      return res.status(400).json({ error: "Invalid Comment ID format" });
+    }
 
     const comment = await prisma.comment.findUnique({
       where: { id: commentId },
@@ -83,6 +104,10 @@ const deleteComment = async (req, res) => {
 
     res.status(200).json({ message: "Comment deleted successfully" });
   } catch (error) {
+    console.error(error);
+    if (error.code === "P2025") {
+      return res.status(404).json({ error: "Comment not found" });
+    }
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -92,6 +117,10 @@ const updateComment = async (req, res) => {
     const commentId = Number(req.params.id);
     const { content } = req.body;
     const authorId = req.userId;
+
+    if (isNaN(commentId)) {
+      return res.status(400).json({ error: "Invalid Comment ID format" });
+    }
 
     const comment = await prisma.comment.findUnique({
       where: { id: commentId },
@@ -107,7 +136,7 @@ const updateComment = async (req, res) => {
         .json({ error: "Unauthorized to edit this comment" });
     }
 
-    if (!content) {
+    if (!content || content.trim() === "") {
       return res.status(400).json({ error: "Content is required" });
     }
 
@@ -123,6 +152,10 @@ const updateComment = async (req, res) => {
       data: updatedComment,
     });
   } catch (error) {
+    console.error(error);
+    if (error.code === "P2025") {
+      return res.status(404).json({ error: "Comment not found" });
+    }
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

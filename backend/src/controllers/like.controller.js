@@ -6,6 +6,10 @@ const toggleLike = async (req, res) => {
     const targetId = Number(id);
     const userId = req.userId;
 
+    if (isNaN(targetId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
+    }
+
     const validTypes = ["event", "comment"];
     if (!validTypes.includes(type)) {
       return res
@@ -35,6 +39,11 @@ const toggleLike = async (req, res) => {
       return res.status(201).json({ message: `${type} liked successfully` });
     }
   } catch (error) {
+    console.error(error);
+    if (error.code === "P2003") {
+      const { type } = req.params;
+      return res.status(404).json({ error: `${type} not found` });
+    }
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
