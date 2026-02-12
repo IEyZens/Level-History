@@ -1,6 +1,6 @@
 import prisma from "../lib/prisma.js";
 
-const getAllPersonalities = async (req, res) => {
+export const getAllPersonalities = async (req, res) => {
   try {
     const allPersonalities = await prisma.personality.findMany({
       orderBy: { name: "asc" },
@@ -12,7 +12,7 @@ const getAllPersonalities = async (req, res) => {
   }
 };
 
-const getPersonalityById = async (req, res) => {
+export const getPersonalityById = async (req, res) => {
   try {
     const personalityId = Number(req.params.id);
     if (isNaN(personalityId))
@@ -32,7 +32,7 @@ const getPersonalityById = async (req, res) => {
   }
 };
 
-const createPersonality = async (req, res) => {
+export const createPersonality = async (req, res) => {
   try {
     const { name, role, biography, category } = req.body;
 
@@ -67,7 +67,7 @@ const createPersonality = async (req, res) => {
   }
 };
 
-const updatePersonality = async (req, res) => {
+export const updatePersonality = async (req, res) => {
   try {
     const personalityId = Number(req.params.id);
     const { name, role, biography, category } = req.body;
@@ -117,7 +117,7 @@ const updatePersonality = async (req, res) => {
   }
 };
 
-const deletePersonality = async (req, res) => {
+export const deletePersonality = async (req, res) => {
   try {
     const personalityId = Number(req.params.id);
     if (isNaN(personalityId))
@@ -149,12 +149,4 @@ const deletePersonality = async (req, res) => {
       return res.status(404).json({ error: "Personality not found" });
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
-
-export {
-  createPersonality,
-  deletePersonality,
-  getAllPersonalities,
-  getPersonalityById,
-  updatePersonality,
 };

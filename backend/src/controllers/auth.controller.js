@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import prisma from "../lib/prisma.js";
 import { generateToken } from "../utils/generateToken.js";
 
-const register = async (req, res) => {
+export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
@@ -71,7 +71,7 @@ const register = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -112,7 +112,7 @@ const login = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
+export const logout = async (req, res) => {
   res.cookie("jwt", "", {
     httpOnly: true,
     expires: new Date(0),
@@ -123,7 +123,7 @@ const logout = async (req, res) => {
   });
 };
 
-const me = async (req, res) => {
+export const me = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
@@ -148,5 +148,3 @@ const me = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-export { login, logout, me, register };

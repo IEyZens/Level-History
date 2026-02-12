@@ -1,6 +1,6 @@
 import prisma from "../lib/prisma.js";
 
-const toggleLike = async (req, res) => {
+export const toggleLike = async (req, res) => {
   try {
     const { type, id } = req.params;
     const targetId = Number(id);
@@ -47,5 +47,3 @@ const toggleLike = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-export { toggleLike };

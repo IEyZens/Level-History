@@ -1,6 +1,6 @@
 import prisma from "../lib/prisma.js";
 
-const createComment = async (req, res) => {
+export const createComment = async (req, res) => {
   try {
     const eventId = Number(req.params.id);
     const { content } = req.body;
@@ -44,7 +44,7 @@ const createComment = async (req, res) => {
   }
 };
 
-const getCommentsByEvent = async (req, res) => {
+export const getCommentsByEvent = async (req, res) => {
   try {
     const eventId = Number(req.params.id);
 
@@ -74,7 +74,7 @@ const getCommentsByEvent = async (req, res) => {
   }
 };
 
-const deleteComment = async (req, res) => {
+export const deleteComment = async (req, res) => {
   try {
     const commentId = Number(req.params.id);
     const authorId = req.userId;
@@ -112,7 +112,7 @@ const deleteComment = async (req, res) => {
   }
 };
 
-const updateComment = async (req, res) => {
+export const updateComment = async (req, res) => {
   try {
     const commentId = Number(req.params.id);
     const { content } = req.body;
@@ -159,5 +159,3 @@ const updateComment = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-export { createComment, deleteComment, getCommentsByEvent, updateComment };

@@ -1,6 +1,6 @@
 import prisma from "../lib/prisma.js";
 
-const getEvents = async (req, res) => {
+export const getEvents = async (req, res) => {
   try {
     const events = await prisma.event.findMany({
       orderBy: {
@@ -27,7 +27,7 @@ const getEvents = async (req, res) => {
   }
 };
 
-const getEventById = async (req, res) => {
+export const getEventById = async (req, res) => {
   try {
     const eventId = Number(req.params.id);
 
@@ -60,7 +60,7 @@ const getEventById = async (req, res) => {
   }
 };
 
-const createEvent = async (req, res) => {
+export const createEvent = async (req, res) => {
   try {
     const { title, description, date } = req.body;
 
@@ -104,7 +104,7 @@ const createEvent = async (req, res) => {
   }
 };
 
-const updateEvent = async (req, res) => {
+export const updateEvent = async (req, res) => {
   try {
     const eventId = Number(req.params.id);
 
@@ -145,7 +145,7 @@ const updateEvent = async (req, res) => {
   }
 };
 
-const deleteEvent = async (req, res) => {
+export const deleteEvent = async (req, res) => {
   try {
     const eventId = Number(req.params.id);
 
@@ -174,5 +174,3 @@ const deleteEvent = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-export { createEvent, deleteEvent, getEventById, getEvents, updateEvent };
