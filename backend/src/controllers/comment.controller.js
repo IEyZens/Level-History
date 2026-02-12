@@ -84,20 +84,6 @@ export const deleteComment = async (req, res) => {
       return res.status(400).json({ error: "Invalid Comment ID format" });
     }
 
-    const comment = await prisma.comment.findUnique({
-      where: { id: commentId },
-    });
-
-    if (!comment) {
-      return res.status(404).json({ error: "Comment not found" });
-    }
-
-    if (authorId !== comment.authorId && userRole !== "ADMIN") {
-      return res
-        .status(403)
-        .json({ error: "Unauthorized to delete this comment" });
-    }
-
     await prisma.comment.delete({
       where: { id: commentId },
     });
@@ -116,24 +102,9 @@ export const updateComment = async (req, res) => {
   try {
     const commentId = Number(req.params.id);
     const { content } = req.body;
-    const authorId = req.userId;
 
     if (isNaN(commentId)) {
       return res.status(400).json({ error: "Invalid Comment ID format" });
-    }
-
-    const comment = await prisma.comment.findUnique({
-      where: { id: commentId },
-    });
-
-    if (!comment) {
-      return res.status(404).json({ error: "Comment not found" });
-    }
-
-    if (authorId !== comment.authorId) {
-      return res
-        .status(403)
-        .json({ error: "Unauthorized to edit this comment" });
     }
 
     if (!content || content.trim() === "") {
