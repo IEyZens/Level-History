@@ -6,7 +6,7 @@ const envSchema = z.object({
     .string()
     .url()
     .refine((url) => url.startsWith("postgresql://"), {
-      message: "DATABASE_URL must be a valid PostgreSQL connection string",
+      error: "DATABASE_URL must be a valid PostgreSQL connection string",
     }),
 
   JWT_SECRET: z
