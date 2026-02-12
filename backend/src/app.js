@@ -1,49 +1,50 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import "dotenv/config";
 import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
+import helmet from "helmet";
 
-import swaggerui from "swagger-ui-express";
-import yaml from "yamljs";
+// Import config FIRST (validates env)
+import { getCorsConfig } from "./config/cors.js";
+import config from "./config/env.js";
+import { getHelmetConfig } from "./config/helmet.js";
 
+// Routes
 import authRoutes from "./routes/auth.route.js";
 import commentRoutes from "./routes/comment.route.js";
 import eventRoutes from "./routes/event.route.js";
 import likeRoutes from "./routes/like.route.js";
 import personalityRoutes from "./routes/personality.route.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 
-const swaggerDocument = yaml.load(path.join(__dirname, "../swagger.yaml"));
+// Security middlewares (BEFORE routes)
+app.use(helmet(getHelmetConfig(config.NODE_ENV)));
+app.use(cors(getCorsConfig(config.ALLOWED_ORIGINS, config.NODE_ENV)));
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    credentials: true,
-  }),
-);
-
+// Body parsers
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+// Static files
+app.use("/uploads", express.static("uploads"));
 
-app.use("/api-docs", swaggerui.serve, swaggerui.setup(swaggerDocument));
-
+// Routes
 app.use("/auth", authRoutes);
 app.use("/events", eventRoutes);
 app.use("/comments", commentRoutes);
 app.use("/likes", likeRoutes);
 app.use("/personalities", personalityRoutes);
 
-app.get("/", (req, res) => {
-  res.json({ message: "API OK!" });
+// Health check
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Internal Server Error" });
 });
 
 export default app;
