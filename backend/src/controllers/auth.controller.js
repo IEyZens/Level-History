@@ -6,40 +6,15 @@ export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    if (
-      !username ||
-      typeof username !== "string" ||
-      username.trim() === "" ||
-      !email ||
-      typeof email !== "string" ||
-      email.trim() === "" ||
-      !password ||
-      typeof password !== "string" ||
-      password.trim() === ""
-    ) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
-    const userExits = await prisma.user.findFirst({
-      where: {
-        OR: [{ email: email }, { username: username }],
-      },
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
     });
 
-    if (userExits && userExits.email === email) {
-      return res
-        .status(400)
-        .json({ error: "User already exists with this email" });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already in use" });
     }
 
-    if (userExits && userExits.username === username) {
-      return res
-        .status(400)
-        .json({ error: "User already exists with this username" });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {
@@ -74,10 +49,6 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password || email.trim() === "" || password.trim() === "") {
-      return res.status(400).json({ error: "All fields are required" });
-    }
 
     const user = await prisma.user.findUnique({
       where: { email: email },

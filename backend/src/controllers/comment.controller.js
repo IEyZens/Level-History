@@ -10,10 +10,6 @@ export const createComment = async (req, res) => {
       return res.status(400).json({ error: "Invalid Event ID format" });
     }
 
-    if (!content || content.trim() === "") {
-      return res.status(400).json({ error: "Content is required" });
-    }
-
     if (!authorId) {
       return res.status(401).json({ error: "User not authenticated" });
     }
@@ -77,8 +73,6 @@ export const getCommentsByEvent = async (req, res) => {
 export const deleteComment = async (req, res) => {
   try {
     const commentId = Number(req.params.id);
-    const authorId = req.userId;
-    const userRole = req.userRole;
 
     if (isNaN(commentId)) {
       return res.status(400).json({ error: "Invalid Comment ID format" });
@@ -105,10 +99,6 @@ export const updateComment = async (req, res) => {
 
     if (isNaN(commentId)) {
       return res.status(400).json({ error: "Invalid Comment ID format" });
-    }
-
-    if (!content || content.trim() === "") {
-      return res.status(400).json({ error: "Content is required" });
     }
 
     const updatedComment = await prisma.comment.update({

@@ -64,10 +64,6 @@ export const createEvent = async (req, res) => {
   try {
     const { title, description, date } = req.body;
 
-    if (!title || !date) {
-      return res.status(400).json({ error: "Title and date are required" });
-    }
-
     if (!req.userId) {
       return res.status(401).json({ error: "User not authenticated" });
     }
@@ -76,7 +72,7 @@ export const createEvent = async (req, res) => {
       data: {
         title,
         description,
-        date: new Date(date),
+        date,
         authorId: req.userId,
       },
     });
@@ -127,7 +123,7 @@ export const updateEvent = async (req, res) => {
       data: {
         title,
         description,
-        date: date ? new Date(date) : undefined,
+        date,
       },
     });
 

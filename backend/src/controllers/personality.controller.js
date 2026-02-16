@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import prisma from "../lib/prisma.js";
 
 export const getAllPersonalities = async (req, res) => {
@@ -36,19 +38,11 @@ export const createPersonality = async (req, res) => {
   try {
     const { name, role, biography, category } = req.body;
 
-    if (req.userRole !== "ADMIN") {
-      return res.status(403).json({ error: "Access denied. Admins only." });
-    }
-
     if (!req.file) {
       return res.status(400).json({ error: "Image file is required" });
     }
 
     const imageUrl = `/uploads/${req.file.filename}`;
-
-    if (!name || !biography || !category) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
 
     const newPersonality = await prisma.personality.create({
       data: {
@@ -74,8 +68,6 @@ export const updatePersonality = async (req, res) => {
 
     if (isNaN(personalityId))
       return res.status(400).json({ error: "Invalid ID format" });
-    if (req.userRole !== "ADMIN")
-      return res.status(403).json({ error: "Access denied. Admins only." });
 
     const existingPersonality = await prisma.personality.findUnique({
       where: { id: personalityId },
@@ -86,15 +78,28 @@ export const updatePersonality = async (req, res) => {
 
     let imageUrl = existingPersonality.image;
 
+    // Si une nouvelle image est uploadée
     if (req.file) {
       imageUrl = `/uploads/${req.file.filename}`;
 
-      /*
-      const oldPath = path.join(process.cwd(), existingPersonality.image);
-      if (fs.existsSync(oldPath)) {
-        fs.unlinkSync(oldPath);
+      // Supprimer l'ancienne image
+      if (existingPersonality.image) {
+        const oldImagePath = path.join(
+          process.cwd(),
+          existingPersonality.image,
+        );
+
+        // Vérifier que le fichier existe avant de le supprimer
+        if (fs.existsSync(oldImagePath)) {
+          try {
+            fs.unlinkSync(oldImagePath);
+            console.log(`Deleted old image: ${oldImagePath}`);
+          } catch (error) {
+            console.error(`Failed to delete old image: ${error.message}`);
+            // Ne pas faire échouer la requête si la suppression échoue
+          }
+        }
       }
-      */
     }
 
     const updatedPersonality = await prisma.personality.update({
@@ -122,24 +127,31 @@ export const deletePersonality = async (req, res) => {
     const personalityId = Number(req.params.id);
     if (isNaN(personalityId))
       return res.status(400).json({ error: "Invalid ID format" });
-    if (req.userRole !== "ADMIN")
-      return res.status(403).json({ error: "Access denied. Admins only." });
 
     const personality = await prisma.personality.findUnique({
       where: { id: personalityId },
     });
 
-    if (personality) {
-      await prisma.personality.delete({ where: { id: personalityId } });
-
-      /*
-        const imagePath = path.join(process.cwd(), personality.image);
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath);
-        }
-        */
-    } else {
+    if (!personality) {
       return res.status(404).json({ error: "Personality not found" });
+    }
+
+    // Supprimer de la base de données
+    await prisma.personality.delete({ where: { id: personalityId } });
+
+    // Supprimer l'image du disque
+    if (personality.image) {
+      const imagePath = path.join(process.cwd(), personality.image);
+
+      if (fs.existsSync(imagePath)) {
+        try {
+          fs.unlinkSync(imagePath);
+          console.log(`Deleted image: ${imagePath}`);
+        } catch (error) {
+          console.error(`Failed to delete image: ${error.message}`);
+          // L'image n'a pas pu être supprimée, mais la personnalité est déjà supprimée
+        }
+      }
     }
 
     res.status(200).json({ message: "Personality deleted successfully" });
