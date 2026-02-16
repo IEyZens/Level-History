@@ -21,6 +21,21 @@ const envSchema = z.object({
     )
     .default("7d"),
 
+  JWT_REFRESH_SECRET: z
+    .string()
+    .min(32, "JWT_REFRESH_SECRET must be at least 32 characters long")
+    .refine((val, ctx) => val !== process.env.JWT_SECRET, {
+      message: "JWT_REFRESH_SECRET must be different from JWT_SECRET",
+    }),
+
+  JWT_REFRESH_EXPIRES_IN: z
+    .string()
+    .regex(
+      /^\d+[dhms]$/,
+      "JWT_REFRESH_EXPIRES_IN must be in format like '7d', '24h', '30m'",
+    )
+    .default("7d"),
+
   PORT: z
     .string()
     .transform((val) => parseInt(val, 10))
