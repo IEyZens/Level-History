@@ -37,3 +37,55 @@ export const validate = (schema) => {
     }
   };
 };
+
+export const validateParams = (schema) => {
+  return (req, res, next) => {
+    try {
+      const validated = schema.parse(req.params);
+
+      req.params = validated;
+
+      next();
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors = error.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        }));
+
+        return res.status(400).json({
+          error: "Invalid route parameter",
+          details: errors,
+        });
+      }
+
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+};
+
+export const validateQuery = (schema) => {
+  return (req, res, next) => {
+    try {
+      const validated = schema.parse(req.query);
+
+      req.query = validated;
+
+      next();
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors = error.errors.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        }));
+
+        return res.status(400).json({
+          error: "Invalid query parameter",
+          details: errors,
+        });
+      }
+
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+};

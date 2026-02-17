@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { sanitize } from "../utils/sanitize.js";
 
 /**
  * Schema de validation pour la création d'un commentaire
@@ -8,7 +9,8 @@ export const createCommentSchema = z.object({
     .string()
     .min(1, "Content cannot be empty")
     .max(1000, "Content must not exceed 1000 characters")
-    .trim(),
+    .trim()
+    .transform((val) => sanitize(val)),
 });
 
 /**
@@ -19,5 +21,6 @@ export const updateCommentSchema = z.object({
     .string()
     .min(1, "Content cannot be empty")
     .max(1000, "Content must not exceed 1000 characters")
-    .trim(),
+    .trim()
+    .transform((val) => sanitize(val)),
 });

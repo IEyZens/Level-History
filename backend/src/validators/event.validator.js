@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { sanitize } from "../utils/sanitize.js";
 
 /**
  * Schema de validation pour la création d'un événement
@@ -12,7 +13,8 @@ export const createEventSchema = z.object({
   description: z
     .string()
     .min(10, "Description must be at least 10 characters long")
-    .max(2000, "Description must not exceed 2000 characters"),
+    .max(2000, "Description must not exceed 2000 characters")
+    .transform((val) => sanitize(val)),
 
   date: z
     .string()
@@ -47,6 +49,7 @@ export const updateEventSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters long")
     .max(2000, "Description must not exceed 2000 characters")
+    .transform((val) => sanitize(val))
     .optional(),
 
   date: z

@@ -7,9 +7,10 @@ import {
   updatePersonality,
 } from "../controllers/personality.controller.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
-import upload from "../middlewares/upload.js";
-import { validate } from "../middlewares/validate.js";
+import upload, { verifyFileType } from "../middlewares/upload.js";
+import { validate, validateParams } from "../middlewares/validate.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
+import { idParamSchema } from "../validators/params.validator.js";
 import {
   createPersonalitySchema,
   updatePersonalitySchema,
@@ -18,13 +19,14 @@ import {
 const router = express.Router();
 
 router.get("/", getAllPersonalities);
-router.get("/:id", getPersonalityById);
+router.get("/:id", validateParams(idParamSchema), getPersonalityById);
 
 router.post(
   "/",
   verifyToken,
   isAdmin,
   upload.single("image"),
+  verifyFileType,
   validate(createPersonalitySchema),
   createPersonality,
 );
@@ -32,10 +34,18 @@ router.put(
   "/:id",
   verifyToken,
   isAdmin,
+  validateParams(idParamSchema),
   upload.single("image"),
+  verifyFileType,
   validate(updatePersonalitySchema),
   updatePersonality,
 );
-router.delete("/:id", verifyToken, isAdmin, deletePersonality);
+router.delete(
+  "/:id",
+  verifyToken,
+  isAdmin,
+  validateParams(idParamSchema),
+  deletePersonality,
+);
 
 export default router;

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { sanitize } from "../utils/sanitize.js";
 
 /**
  * Schema de validation pour la création d'une personnalité
@@ -12,7 +13,8 @@ export const createPersonalitySchema = z.object({
   bio: z
     .string()
     .min(10, "Bio must be at least 10 characters long")
-    .max(2000, "Bio must not exceed 2000 characters"),
+    .max(2000, "Bio must not exceed 2000 characters")
+    .transform((val) => sanitize(val)),
 
   birthDate: z
     .string()
@@ -49,6 +51,7 @@ export const updatePersonalitySchema = z.object({
     .string()
     .min(10, "Bio must be at least 10 characters long")
     .max(2000, "Bio must not exceed 2000 characters")
+    .transform((val) => sanitize(val))
     .optional(),
 
   birthDate: z

@@ -5,7 +5,7 @@ export const idParamSchema = z.object({
     .string()
     .regex(/^\d+$/, "ID must be a positive integer")
     .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0, { error: "ID must be greater than 0" }),
+    .refine((val) => val > 0, { message: "ID must be greater than 0" }),
 });
 
 export const paginationQuerySchema = z.object({
@@ -18,9 +18,11 @@ export const paginationQuerySchema = z.object({
   limit: z
     .string()
     .transform((val) => (val ? parseInt(val, 10) : 10))
-    .refine((val) => val > 1 && val < 100, {
-      error: "Limit must be between 1 and 100",
+    .refine((val) => val >= 1 && val <= 100, {
+      message: "Limit must be between 1 and 100",
     })
     .default(10)
     .optional(),
+  sortBy: z.enum(["createdAt", "date", "title", "name"]).optional(),
+  order: z.enum(["asc", "desc"]).default("asc"),
 });

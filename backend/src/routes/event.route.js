@@ -7,17 +7,18 @@ import {
   updateEvent,
 } from "../controllers/event.controller.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
-import { validate } from "../middlewares/validate.js";
+import { validate, validateParams } from "../middlewares/validate.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
 import {
   createEventSchema,
   updateEventSchema,
 } from "../validators/event.validator.js";
+import { idParamSchema } from "../validators/params.validator.js";
 
 const router = express.Router();
 
 router.get("/", getEvents);
-router.get("/:id", getEventById);
+router.get("/:id", validateParams(idParamSchema), getEventById);
 router.post(
   "/",
   verifyToken,
@@ -29,9 +30,16 @@ router.put(
   "/:id",
   verifyToken,
   isAdmin,
+  validateParams(idParamSchema),
   validate(updateEventSchema),
   updateEvent,
 );
-router.delete("/:id", verifyToken, isAdmin, deleteEvent);
+router.delete(
+  "/:id",
+  verifyToken,
+  isAdmin,
+  validateParams(idParamSchema),
+  deleteEvent,
+);
 
 export default router;
