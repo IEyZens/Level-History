@@ -52,7 +52,7 @@ export const getCommentsByEvent = async (req, res) => {
       where: { eventId },
       include: {
         author: {
-          select: { username: true, role: true },
+          select: { id: true, username: true, role: true },
         },
         _count: {
           select: { likes: true },

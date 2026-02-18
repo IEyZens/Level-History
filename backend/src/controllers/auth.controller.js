@@ -36,6 +36,7 @@ export const register = async (req, res) => {
           id: user.id,
           username: user.username,
           email: user.email,
+          role: user.role,
         },
         token: tokens.accessToken,
       },
@@ -76,6 +77,7 @@ export const login = async (req, res) => {
           id: user.id,
           username: user.username,
           email: user.email,
+          role: user.role,
         },
         token: tokens.accessToken,
       },
@@ -128,6 +130,7 @@ export const me = async (req, res) => {
         id: true,
         username: true,
         email: true,
+        role: true,
         createdAt: true,
       },
     });
