@@ -1,9 +1,10 @@
 import AuthProvider from "./context/AuthContext";
+import AppRouter from "./router/AppRouter";
 
 function App() {
   return (
     <AuthProvider>
-      <div>Level History</div>
+      <AppRouter />
     </AuthProvider>
   );
 }
