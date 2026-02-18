@@ -8,6 +8,18 @@ export const idParamSchema = z.object({
     .refine((val) => val > 0, { message: "ID must be greater than 0" }),
 });
 
+export const likeParamsSchema = z.object({
+  type: z.enum(["event", "comment"], {
+    errorMap: () => ({ message: 'Type must be "event" or "comment"' }),
+  }),
+
+  id: z
+    .string()
+    .regex(/^\d+$/, "ID must be a positive integer")
+    .transform((val) => parseInt(val, 10))
+    .refine((val) => val > 0, { message: "ID must be a greater than 0" }),
+});
+
 export const paginationQuerySchema = z.object({
   page: z
     .string()
