@@ -25,7 +25,7 @@ async function tryRefreshToken() {
   }
 }
 
-async function apiClient(endpoint, options = {}, retry = true) {
+export default async function apiClient(endpoint, options = {}, retry = true) {
   const config = {
     credentials: "include",
     headers: {
@@ -64,5 +64,3 @@ export const api = {
 
   delete: (endpoint) => apiClient(endpoint, { method: "DELETE" }),
 };
-
-export default apiClient;
