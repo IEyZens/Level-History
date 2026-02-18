@@ -117,7 +117,7 @@ export default function EventDetailPage() {
               className="btn btn-outline"
               disabled={!user}
             >
-              ❤️ Like ({event._count?.eventLikes || 0})
+              ❤️ Like ({event._count?.likes || 0})
             </button>
             {user?.role === "ADMIN" && (
               <button onClick={handleDeleteEvent} className="btn btn-danger">
@@ -165,14 +165,14 @@ export default function EventDetailPage() {
                     marginBottom: "0.5rem",
                   }}
                 >
-                  <strong>{comment.user.username}</strong>
+                  <strong>{comment.author.username}</strong>
                   <small style={{ color: "var(--color-text-muted)" }}>
                     {new Date(comment.createdAt).toLocaleDateString()}
                   </small>
                 </div>
                 <p>{comment.content}</p>
                 {user &&
-                  (user.id === comment.userId || user.role === "ADMIN") && (
+                  (user.id === comment.authorId || user.role === "ADMIN") && (
                     <button
                       onClick={() => handleDeleteComment(comment.id)}
                       className="btn btn-danger"
