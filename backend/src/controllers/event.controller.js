@@ -41,6 +41,11 @@ export const getEventById = async (req, res) => {
         author: {
           select: { username: true },
         },
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
         _count: {
           select: {
             likes: true,
