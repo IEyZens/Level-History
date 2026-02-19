@@ -12,6 +12,7 @@ import { useAuth } from "../context/AuthContext";
 export default function EventDetailPage() {
   const [event, setEvent] = useState(null);
   const [comments, setComments] = useState([]);
+  const [isLiked, setIsLiked] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,6 +29,7 @@ export default function EventDetailPage() {
       const eventData = await getEventById(id);
       const commentsData = await getCommentsByEvent(id);
       setEvent(eventData);
+      setIsLiked(eventData.likes?.some((l) => l.userId === user?.id) ?? false);
       setComments(commentsData);
     } catch (error) {
       setError(error.message);
@@ -112,12 +114,34 @@ export default function EventDetailPage() {
           </p>
           <p>{event.description}</p>
           <div style={{ display: "flex", gap: "1rem" }}>
-            <button
-              onClick={handleLike}
-              className="btn btn-outline"
-              disabled={!user}
-            >
-              ❤️ Like ({event._count?.likes || 0})
+            <button onClick={handleLike} className="like-btn" disabled={!user}>
+              {isLiked === false ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  fill="none"
+                  strokeWidth="2"
+                >
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5
+                    5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
+                    1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                  ></path>
+                </svg>
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="red"
+                  stroke="red"
+                  strokeWidth="2"
+                >
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12
+                  5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12
+                  21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                  ></path>
+                </svg>
+              )}
             </button>
             {user?.role === "ADMIN" && (
               <button onClick={handleDeleteEvent} className="btn btn-danger">
