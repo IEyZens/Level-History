@@ -63,6 +63,7 @@ export default function EventsPage() {
   }, []);
 
   function handleFilter(category) {
+    setActiveCategory(category)
     if (category === "ALL") {
       setFilteredEvents(events);
     } else {
