@@ -5,6 +5,46 @@ export default function PersonalitiesPage() {
   const [personalities, setPersonalities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeCategory, setActiveCategory] = useState("ALL");
+
+  const CATEGORY_LABELS = {
+    ALL: "ALL",
+    VISIONARY: "Visionaries",
+    BUILDER: "Builders",
+    EXECUTIVE: "Executives",
+  };
+
+  const CATEGORY_DESCRIPTIONS = {
+    VISIONARY: "Those who set the rules and created the worlds",
+    BUILDER: "The engineers who made the impossible possible",
+    EXECUTIVE: "Those who built the empires and led the studios",
+  };
+
+  const FAQ_ITEMS = [
+    {
+      question: "Who are the personalities?",
+      answer: "figures who shaped the video game industry",
+    },
+    {
+      question: "How were they selected?",
+      answer: "chosen for their impact as creators, innovators or executives",
+    },
+    {
+      question: "Can I suggest someone?",
+      answer: "yes, contact us with the person and their contributions",
+    },
+    {
+      question: "Are there female personalities?",
+      answer: "yes, women played a key role in the industry",
+    },
+    {
+      question: "What do the categories mean?",
+      answer:
+        "Visionaries created worlds, Builders built the tech, Executives led the studios",
+    },
+  ];
+
+  const filteredPersonalities = personalities.slice(activeCategory === "ALL");
 
   useEffect(() => {
     async function fetchPersonalities() {
@@ -23,32 +63,34 @@ export default function PersonalitiesPage() {
 
   return (
     <div className="page">
-      <h1>Personalities</h1>
-      {loading && <p>Loading personalities...</p>}
-      {error && <div className="alert alert-error">{error}</div>}
-      {!loading && !error && personalities.length === 0 && (
-        <p>No personalities found.</p>
-      )}
-      {personalities && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-            gap: "1.5rem",
-          }}
-        >
-          {personalities.map((personality) => (
+      <div className="personalities-hero">
+        <h1>The Visionaries of Gaming</h1>
+        <p>
+          Explore the figures who shaped the video game industry and transformed
+          digital entertainment forever.
+        </p>
+      </div>
+      <div className="personalities-categories">
+        <span className="section-label">Categories</span>
+        <h2>Three Worlds, One Story</h2>
+        <p>Discover the different branches of this industry.</p>
+        <div className="categories-grid">
+          {Object.entries(CATEGORY_LABELS).map(([category, label]) => (
             <div
-              key={personality.id}
-              className="card"
-              style={{ padding: "1.5rem" }}
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              className={
+                activeCategory === category
+                  ? "category-card--active"
+                  : "category-card"
+              }
             >
-              <h3>{personality.name}</h3>
-              <p>{personality.bio.slice(0, 100) + "..."}</p>
+              <span className="category-label">{label}</span>
+              <p>{CATEGORY_DESCRIPTIONS[category]}</p>
             </div>
           ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }
