@@ -36,7 +36,7 @@ export default function EventDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, user?.id]);
 
   useEffect(() => {
     fetchEventData();
