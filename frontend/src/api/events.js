@@ -22,8 +22,20 @@ export async function getEventById(id) {
   }
 }
 
-export async function createEvent({ title, description, date }) {
-  const res = await api.post("/events", { title, description, date });
+export async function createEvent({
+  title,
+  description,
+  date,
+  image,
+  category,
+}) {
+  const res = await api.post("/events", {
+    title,
+    description,
+    date,
+    image,
+    category,
+  });
   const data = await res.json();
 
   if (!res.ok) {
