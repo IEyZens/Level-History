@@ -33,6 +33,8 @@ export const createEventSchema = z.object({
       "OTHER",
     ])
     .optional(),
+
+  image: z.string().url("Image must be a valid URL").optional().nullable(),
 });
 
 /**
@@ -70,4 +72,6 @@ export const updateEventSchema = z.object({
       "OTHER",
     ])
     .optional(),
+
+  image: z.string().url("Image must be a valid URL").optional().nullable(),
 });

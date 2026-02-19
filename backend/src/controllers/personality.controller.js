@@ -36,7 +36,8 @@ export const getPersonalityById = async (req, res) => {
 
 export const createPersonality = async (req, res) => {
   try {
-    const { name, role, biography, category } = req.body;
+    const { name, role, biography, category, twitter, linkedin, website } =
+      req.body;
 
     if (!req.file) {
       return res.status(400).json({ error: "Image file is required" });
@@ -51,6 +52,9 @@ export const createPersonality = async (req, res) => {
         biography,
         image: imageUrl,
         category,
+        twitter: twitter || null,
+        linkedin: linkedin || null,
+        website: website || null,
       },
     });
 
@@ -64,7 +68,8 @@ export const createPersonality = async (req, res) => {
 export const updatePersonality = async (req, res) => {
   try {
     const personalityId = Number(req.params.id);
-    const { name, role, biography, category } = req.body;
+    const { name, role, biography, category, twitter, linkedin, website } =
+      req.body;
 
     if (isNaN(personalityId))
       return res.status(400).json({ error: "Invalid ID format" });
@@ -110,6 +115,9 @@ export const updatePersonality = async (req, res) => {
         biography,
         image: imageUrl,
         category,
+        twitter: twitter ?? existingPersonality.twitter,
+        linkedin: linkedin ?? existingPersonality.linkedin,
+        website: website ?? existingPersonality.website,
       },
     });
 

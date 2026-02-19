@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "EventCategory" AS ENUM ('CONSOLE_RELEASE', 'GAME_RELEASE', 'COMPANY_FOUNDING', 'TECHNOLOGY', 'CULTURAL_IMPACT', 'OTHER');
+
+-- AlterTable
+ALTER TABLE "Event" ADD COLUMN     "category" "EventCategory" NOT NULL DEFAULT 'OTHER';

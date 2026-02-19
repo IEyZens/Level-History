@@ -10,7 +10,7 @@ export const createPersonalitySchema = z.object({
     .min(2, "Name must be at least 2 characters long")
     .max(100, "Name must not exceed 100 characters"),
 
-  bio: z
+  biography: z
     .string()
     .min(10, "Bio must be at least 10 characters long")
     .max(2000, "Bio must not exceed 2000 characters")
@@ -35,6 +35,16 @@ export const createPersonalitySchema = z.object({
     .min(2, "Role must be at least 2 characters long")
     .max(100, "Role must not exceed 100 characters")
     .optional(),
+
+  twitter: z.string().url("Twitter must be a valid URL").optional().nullable(),
+
+  linkedin: z
+    .string()
+    .url("LinkedIn must be a valid URL")
+    .optional()
+    .nullable(),
+
+  website: z.string().url("Website must be a valid URL").optional().nullable(),
 });
 
 /**
@@ -47,7 +57,7 @@ export const updatePersonalitySchema = z.object({
     .max(100, "Name must not exceed 100 characters")
     .optional(),
 
-  bio: z
+  biography: z
     .string()
     .min(10, "Bio must be at least 10 characters long")
     .max(2000, "Bio must not exceed 2000 characters")
@@ -73,4 +83,14 @@ export const updatePersonalitySchema = z.object({
     .min(2, "Role must be at least 2 characters long")
     .max(100, "Role must not exceed 100 characters")
     .optional(),
+
+  twitter: z.string().url("Twitter must be a valid URL").optional().nullable(),
+
+  linkedin: z
+    .string()
+    .url("LinkedIn must be a valid URL")
+    .optional()
+    .nullable(),
+
+  website: z.string().url("Website must be a valid URL").optional().nullable(),
 });

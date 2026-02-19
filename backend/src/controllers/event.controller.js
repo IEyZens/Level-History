@@ -62,7 +62,7 @@ export const getEventById = async (req, res) => {
 
 export const createEvent = async (req, res) => {
   try {
-    const { title, description, date } = req.body;
+    const { title, description, date, image, category } = req.body;
 
     if (!req.userId) {
       return res.status(401).json({ error: "User not authenticated" });
@@ -73,6 +73,8 @@ export const createEvent = async (req, res) => {
         title,
         description,
         date,
+        image: image || null,
+        category: category || "OTHER",
         authorId: req.userId,
       },
     });
@@ -85,6 +87,7 @@ export const createEvent = async (req, res) => {
           title: newEvent.title,
           description: newEvent.description,
           date: newEvent.date,
+          category: newEvent.category,
           authorId: newEvent.authorId,
         },
       },
@@ -108,7 +111,7 @@ export const updateEvent = async (req, res) => {
       return res.status(400).json({ error: "Invalid ID format" });
     }
 
-    const { title, description, date } = req.body;
+    const { title, description, date, image, category } = req.body;
 
     const existingEvent = await prisma.event.findUnique({
       where: { id: eventId },
@@ -124,6 +127,8 @@ export const updateEvent = async (req, res) => {
         title,
         description,
         date,
+        image: image ?? existingEvent.image,
+        category: category ?? existingEvent.category,
       },
     });
 
