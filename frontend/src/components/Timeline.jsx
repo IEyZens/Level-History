@@ -97,11 +97,9 @@ export default function Timeline({ events }) {
             className="timeline-card"
             onClick={() => setSelectedEvent(event)}
           >
-            {event.image ? (
-              <img src={event.image} alt={event.title} />
-            ) : (
-              <div className="timeline-card-placeholder"></div>
-            )}
+            <div className="timeline-card-image">
+              {event.image ? <img src={event.image} alt={event.title} /> : null}
+            </div>
             <p className="timeline-card-title">{event.title}</p>
           </div>
         ))}
