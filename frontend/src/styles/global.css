@@ -357,6 +357,7 @@ textarea {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+  padding: 0 2.9rem;
 }
 
 .timeline-year {
@@ -364,6 +365,14 @@ textarea {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--color-text-muted);
+}
+
+.timeline-year:first-child {
+  text-align: left;
+}
+
+.timeline-year:last-child {
+  text-align: right;
 }
 
 .timeline-hero {
