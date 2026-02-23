@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getPersonalities } from "../api/personalities";
+import Accordion from "../components/Accordion";
 
 export default function PersonalitiesPage() {
   const [personalities, setPersonalities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeCategory, setActiveCategory] = useState("ALL");
+  const navigate = useNavigate();
 
   const CATEGORY_LABELS = {
     ALL: "ALL",
@@ -44,7 +47,10 @@ export default function PersonalitiesPage() {
     },
   ];
 
-  const filteredPersonalities = personalities.slice(activeCategory === "ALL");
+  const filteredPersonalities =
+    activeCategory === "ALL"
+      ? personalities
+      : personalities.filter((p) => p.category === activeCategory);
 
   useEffect(() => {
     async function fetchPersonalities() {
@@ -75,21 +81,116 @@ export default function PersonalitiesPage() {
         <h2>Three Worlds, One Story</h2>
         <p>Discover the different branches of this industry.</p>
         <div className="categories-grid">
-          {Object.entries(CATEGORY_LABELS).map(([category, label]) => (
-            <div
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={
-                activeCategory === category
-                  ? "category-card--active"
-                  : "category-card"
-              }
-            >
-              <span className="category-label">{label}</span>
-              <p>{CATEGORY_DESCRIPTIONS[category]}</p>
-            </div>
-          ))}
+          {Object.entries(CATEGORY_LABELS)
+            .filter(([category]) => category !== "ALL")
+            .map(([category, label]) => (
+              <div
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={
+                  activeCategory === category
+                    ? "category-card--active"
+                    : "category-card"
+                }
+              >
+                <span className="category-label">{label}</span>
+                <p>{CATEGORY_DESCRIPTIONS[category]}</p>
+              </div>
+            ))}
         </div>
+      </div>
+      <div className="personalities-section">
+        <span className="section-label">Legends</span>
+        <h2>The Builders</h2>
+        <p>
+          Meet those who laid the foundations of everything young people love
+          today.
+        </p>
+        <button
+          className="btn btn-outline"
+          onClick={() => console.log("learn-more")}
+        >
+          Learn more
+        </button>
+        {loading && <p>Loading...</p>}
+        {error && <div className="alert alert-error">{error}</div>}
+        {!loading && !error && filteredPersonalities.length === 0 && (
+          <p>No personalities found.</p>
+        )}
+        {!loading && !error && filteredPersonalities.length > 0 && (
+          <div className="personalities-list">
+            {filteredPersonalities.map((personality) => (
+              <div key={personality.id}>
+                <img
+                  src={personality.image}
+                  alt={personality.name}
+                  className="personality-img"
+                />
+                <div className="personality-info">
+                  <h3>{personality.name}</h3>
+                  <p className="personality-role">{personality.role}</p>
+                  <p className="personality-bio">
+                    {personality.biography.slice(0, 120) + "..."}
+                  </p>
+                  <div className="personality-socials">
+                    {personality.twitter && (
+                      <a
+                        href={personality.twitter}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        X
+                      </a>
+                    )}
+                    {personality.linkedin && (
+                      <a
+                        href={personality.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        in
+                      </a>
+                    )}
+                    {personality.website && (
+                      <a
+                        href={personality.website}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        🌐
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="personalities-faq">
+        <h2>Questions</h2>
+        <p>
+          Find answers to the most common questions about our personalities.
+        </p>
+        <Accordion items={FAQ_ITEMS} />
+        <div className="faq-cta">
+          <h3>Any remaining questions?</h3>
+          <p>Contact us directly to find out more.</p>
+          <button onClick={() => console.log("contact")}>Write</button>
+        </div>
+      </div>
+      <div className="personalities-cta">
+        <h2>See Their Legacy in Action</h2>
+        <p>
+          Every personality left a mark on the timeline. Explore how their
+          decisions shaped each era.
+        </p>
+        <button className="btn btn-primary" onClick={() => navigate("/events")}>
+          Explore
+        </button>
+        <button className="btn btn-outline" onClick={() => navigate("/")}>
+          Home
+        </button>
       </div>
     </div>
   );
