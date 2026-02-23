@@ -8,7 +8,7 @@ import {
 } from "chart.js";
 import { useEffect, useRef, useState } from "react";
 import { Line } from "react-chartjs-2";
-import { useNavigate } from "react-router-dom";
+import EventModal from "./EventModal";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -20,7 +20,7 @@ ChartJS.register(
 export default function Timeline({ events }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(3);
-  const navigate = useNavigate();
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const chartRef = useRef(null);
 
@@ -95,7 +95,7 @@ export default function Timeline({ events }) {
           <div
             key={event.id}
             className="timeline-card"
-            onClick={() => navigate(`/events/${event.id}`)}
+            onClick={() => setSelectedEvent(event)}
           >
             {event.image ? (
               <img src={event.image} alt={event.title} />
@@ -132,6 +132,10 @@ export default function Timeline({ events }) {
           </div>
         ))}
       </div>
+      <EventModal
+        event={selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+      />
     </div>
   );
 }
