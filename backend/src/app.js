@@ -14,6 +14,7 @@ import commentRoutes from "./routes/comment.route.js";
 import eventRoutes from "./routes/event.route.js";
 import likeRoutes from "./routes/like.route.js";
 import personalityRoutes from "./routes/personality.route.js";
+import userRoutes from "./routes/user.routes.js";
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/events", eventRoutes);
 app.use("/comments", commentRoutes);
 app.use("/likes", likeRoutes);
 app.use("/personalities", personalityRoutes);
+app.use("/users", userRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
