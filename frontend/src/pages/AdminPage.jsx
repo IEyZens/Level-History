@@ -7,10 +7,21 @@ export default function AdminPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
+  const [image, setImage] = useState("");
+  const [category, setCategory] = useState("OTHER");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formLoading, setFormLoading] = useState(false);
+
+  const EVENT_CATEGORIES = {
+    OTHER: "Other",
+    CONSOLE_RELEASE: "Console",
+    GAME_RELEASE: "Games",
+    COMPANY_FOUNDING: "Companies",
+    TECHNOLOGY: "Technology",
+    CULTURAL_IMPACT: "Culture",
+  };
 
   async function fetchAdmin() {
     try {
@@ -30,10 +41,12 @@ export default function AdminPage() {
     e.preventDefault();
     setFormLoading(true);
     try {
-      await createEvent({ title, description, date });
+      await createEvent({ title, description, date, image, category });
       setTitle("");
       setDescription("");
       setDate("");
+      setImage("");
+      setCategory("OTHER");
       fetchAdmin();
     } catch (error) {
       console.error(error);
@@ -90,6 +103,29 @@ export default function AdminPage() {
               onChange={(e) => setDate(e.target.value)}
               required
             />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Image URL</label>
+            <input
+              type="text"
+              className="form-input"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Category</label>
+            <select
+              className="form-input"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              {Object.entries(EVENT_CATEGORIES).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </div>
           <button
             type="submit"
