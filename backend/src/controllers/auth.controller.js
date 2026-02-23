@@ -131,6 +131,7 @@ export const me = async (req, res) => {
         username: true,
         email: true,
         role: true,
+        avatar: true,
         createdAt: true,
       },
     });
