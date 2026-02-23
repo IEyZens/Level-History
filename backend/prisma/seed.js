@@ -86,7 +86,7 @@ async function main() {
       date: new Date("1972-11-29"),
       category: "GAME_RELEASE",
       image:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Pong.png/240px-Pong.png",
+        "https://media.rawg.io/media/screenshots/c4c/c4c6b10af25760e2be5cd71327e935c0.jpg",
       authorId: admin.id,
     },
   });
@@ -99,7 +99,7 @@ async function main() {
       date: new Date("1977-09-11"),
       category: "CONSOLE_RELEASE",
       image:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Atari-2600-Wood-4Sw-Set.jpg/800px-Atari-2600-Wood-4Sw-Set.jpg",
+        "https://media.rawg.io/media/screenshots/b70/b70ea5ec4d1f909ac451d8203baad9a9.jpg",
       authorId: admin.id,
     },
   });
@@ -112,7 +112,7 @@ async function main() {
       date: new Date("1985-09-13"),
       category: "GAME_RELEASE",
       image:
-        "https://upload.wikimedia.org/wikipedia/en/0/03/Super_Mario_Bros._box.png",
+        "https://media.rawg.io/media/games/154/154fea9689109f26c49c6a2db6263ef9.jpg",
       authorId: admin.id,
     },
   });
@@ -125,7 +125,7 @@ async function main() {
       date: new Date("1989-04-21"),
       category: "CONSOLE_RELEASE",
       image:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Game-Boy-FL.jpg/220px-Game-Boy-FL.jpg",
+        "https://media.rawg.io/media/screenshots/594/594588a0680e5358802a76e8486245f6.jpg",
       authorId: admin.id,
     },
   });
@@ -138,7 +138,7 @@ async function main() {
       date: new Date("1994-12-03"),
       category: "CONSOLE_RELEASE",
       image:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/PlayStation-Composite-1.jpg/800px-PlayStation-Composite-1.jpg",
+        "https://media.rawg.io/media/screenshots/253/253daf451fb1840de122a1f95850f3cd.jpg",
       authorId: admin.id,
     },
   });
@@ -151,7 +151,7 @@ async function main() {
       date: new Date("1998-09-28"),
       category: "GAME_RELEASE",
       image:
-        "https://upload.wikimedia.org/wikipedia/en/a/af/Pokemon_Red_EN_boxart.jpg",
+        "https://media.rawg.io/media/games/356/3566c06f8e5d3b45f4163dec1d9968a2.jpg",
       authorId: admin.id,
     },
   });
@@ -164,7 +164,7 @@ async function main() {
       date: new Date("2001-11-15"),
       category: "CONSOLE_RELEASE",
       image:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Xbox-console.jpg/800px-Xbox-console.jpg",
+        "https://media.rawg.io/media/games/5c1/5c1bf751ed0db8f26fb9fbaffe8f51c0.jpg",
       authorId: admin.id,
     },
   });
@@ -177,7 +177,7 @@ async function main() {
       date: new Date("2006-11-19"),
       category: "CONSOLE_RELEASE",
       image:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Wii-console.jpg/800px-Wii-console.jpg",
+        "https://media.rawg.io/media/games/d26/d26ddc869179c4e890de225f0054ff70.jpg",
       authorId: admin.id,
     },
   });
