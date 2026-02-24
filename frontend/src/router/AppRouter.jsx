@@ -7,6 +7,7 @@ import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import PersonalitiesPage from "../pages/PersonalitiesPage";
+import ProfilePage from "../pages/ProfilePage";
 import RegisterPage from "../pages/RegisterPage";
 
 function PrivateRoute({ children }) {
@@ -65,6 +66,14 @@ function AppRouter() {
           <PublicOnlyRoute>
             <RegisterPage />
           </PublicOnlyRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <ProfilePage />
+          </PrivateRoute>
         }
       />
 
