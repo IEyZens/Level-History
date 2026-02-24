@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAdminStats, getMyProfile, updateMyProfile } from "../api/users";
+import { useAuth } from "../context/AuthContext";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
@@ -9,13 +10,14 @@ export default function ProfilePage() {
   const [email, setEmail] = useState("");
   const [avatar, setAvatar] = useState("");
   const [password, setPassword] = useState("");
+  const { setUser } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editMode, setEditMode] = useState(false);
 
   const [formLoading, setFormLoading] = useState(false);
-  const [formError, setFormError] = useState(false);
+  const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState(false);
 
   const navigate = useNavigate();
@@ -43,20 +45,22 @@ export default function ProfilePage() {
   async function handleUpdate(e) {
     e.preventDefault();
     setFormLoading(true);
+    setFormError("");
+    setFormSuccess(false);
     try {
-      await updateMyProfile({
+      const updatedUser = await updateMyProfile({
         username,
         email,
         avatar,
         password: password || undefined,
       });
-      setUsername("");
-      setEmail("");
-      setAvatar("");
+      setUser(updatedUser);
+      setProfile((prev) => ({ ...prev, ...updatedUser }));
       setPassword("");
-      fetchProfile();
+      setEditMode(false);
+      setFormSuccess(true);
     } catch (error) {
-      console.error(error);
+      setFormError(error.message);
     } finally {
       setFormLoading(false);
     }
@@ -137,6 +141,12 @@ export default function ProfilePage() {
       {editMode && (
         <div className="profile-edit">
           <h2>Edit Profile</h2>
+          {formError && <div className="alert alert-error">{formError}</div>}
+          {formSuccess && (
+            <div className="alert alert-success">
+              Profile updated successfully!
+            </div>
+          )}
           <form onSubmit={handleUpdate}>
             <div className="form-group">
               <label className="form-label">Username</label>
