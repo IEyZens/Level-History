@@ -36,7 +36,15 @@ export default function Navbar() {
         </button>
         {user && (
           <>
-            <span className="navbar-username">{user.username}</span>
+            <Link to="/profile" className="navbar-avatar">
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.username} />
+              ) : (
+                <div className="navbar-avatar-placeholder">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </Link>
             <button onClick={handleLogout} className="btn btn-outline">
               Logout
             </button>
