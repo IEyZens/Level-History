@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getEvents } from "../api/events";
-import Timeline from "../components/Timeline";
+import TimelinePreview from "../components/TimelinePreview";
 import { useAuth } from "../context/AuthContext";
 
 export default function HomePage() {
@@ -176,17 +176,28 @@ export default function HomePage() {
           </p>
           <div className="home-timeline-actions">
             <button
-              className="btn btn-outline"
+              className="btn btn-outline-dark"
               onClick={() => navigate("/events")}
             >
               View all
             </button>
-            <span className="learn-card-link">Timeline →</span>
+            <span className="timeline-preview-link">
+              Timeline
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </span>
           </div>
           {loading && <p>Loading...</p>}
           {error && <div className="alert alert-error">{error}</div>}
           {!loading && !error && events.length > 0 && (
-            <Timeline events={events} />
+            <TimelinePreview events={events} />
           )}
         </div>
       </section>
