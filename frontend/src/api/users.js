@@ -12,12 +12,12 @@ export async function getMyProfile() {
   if (!res.ok) {
     return null;
   } else {
-    return data.data;
+    return data;
   }
 }
 
-export async function updateMyProfile() {
-  const res = await api.put("/users/me");
+export async function updateMyProfile(fields) {
+  const res = await api.put("/users/me", fields);
   const data = await res.json();
 
   if (!res.ok) {
