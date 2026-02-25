@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../api/auth";
 import { useAuth, useTheme } from "../context/AuthContext";
@@ -7,6 +8,7 @@ export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const [resourcesOpen, setResourcesOpen] = useState(false);
 
   async function handleLogout() {
     try {
@@ -24,34 +26,64 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-brand">
-        <div className="navbar-brand-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
-            <rect x="2" y="8" width="20" height="8" rx="2" />
-            <path d="M6 12h4M8 10v4M15 12h.01M18 12h.01" />
-          </svg>
-        </div>
-        <span>
-          Level <strong>History</strong>
-        </span>
+        <span className="navbar-brand-logo">Logo</span>
       </Link>
 
       <div className="navbar-links">
-        <Link to="/events" className={isActive("/events")}>
-          Events
+        <Link to="/" className={`navbar-link ${isActive("/")}`}>
+          Home
         </Link>
-        <Link to="/personalities" className={isActive("/personalities")}>
+        <Link to="/events" className={`navbar-link ${isActive("/events")}`}>
+          Timeline
+        </Link>
+        <Link
+          to="/personalities"
+          className={`navbar-link ${isActive("/personalities")}`}
+        >
           Personalities
         </Link>
+
+        <div
+          className="navbar-dropdown"
+          onMouseEnter={() => setResourcesOpen(true)}
+          onMouseLeave={() => setResourcesOpen(false)}
+        >
+          <button
+            className={`navbar-link navbar-dropdown-trigger ${
+              resourcesOpen ? "navbar-link--active" : ""
+            }`}
+          >
+            Resources
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              className={resourcesOpen ? "navbar-chevron--open" : ""}
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          {resourcesOpen && (
+            <div className="navbar-dropdown-menu">
+              <Link to="/faq" className="navbar-dropdown-item">
+                FAQ
+              </Link>
+              <Link to="/about" className="navbar-dropdown-item">
+                About
+              </Link>
+              <Link to="/contact" className="navbar-dropdown-item">
+                Contact
+              </Link>
+            </div>
+          )}
+        </div>
+
         {user?.role === "ADMIN" && (
           <Link
             to="/admin"
-            className={`navbar-link--admin ${isActive("/admin")}`}
+            className={`navbar-link navbar-link--admin ${isActive("/admin")}`}
           >
             Admin
           </Link>
