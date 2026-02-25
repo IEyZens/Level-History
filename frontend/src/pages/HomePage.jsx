@@ -55,6 +55,10 @@ export default function HomePage() {
         </div>
       </section>
 
+      <div className="home-banner">
+        <div className="home-banner-placeholder" />
+      </div>
+
       {/* Three Ways to Learn */}
       <section className="section" id="learn-more">
         <div className="section-inner">
@@ -76,11 +80,25 @@ export default function HomePage() {
               </p>
               <div className="learn-card-actions">
                 <button className="btn btn-outline-white">Browse</button>
-                <span className="learn-card-link">Fiche →</span>
+                <span className="learn-card-link">
+                  Fiche
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </span>
               </div>
             </div>
 
-            <div className="learn-card" onClick={() => navigate("/events")}>
+            <div
+              className="learn-card learn-card--dark"
+              onClick={() => navigate("/events")}
+            >
               <div className="learn-card-icon">
                 <svg
                   viewBox="0 0 24 24"
@@ -95,11 +113,22 @@ export default function HomePage() {
               </div>
               <h3>Iconic Consoles</h3>
               <p>Discover the machines that revolutionized the industry.</p>
-              <span className="learn-card-link">Fiche →</span>
+              <span className="learn-card-link">
+                Fiche
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </span>
             </div>
 
             <div
-              className="learn-card"
+              className="learn-card learn-card--dark"
               onClick={() => navigate("/personalities")}
             >
               <div className="learn-card-icon">
@@ -119,7 +148,18 @@ export default function HomePage() {
                 Learn the stories of the creators and visionaries who built it
                 all.
               </p>
-              <span className="learn-card-link">Fiche →</span>
+              <span className="learn-card-link">
+                Fiche
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </span>
             </div>
           </div>
         </div>
