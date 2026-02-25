@@ -98,21 +98,34 @@ export default function Timeline({ events }) {
             onClick={() => setSelectedEvent(event)}
           >
             <div className="timeline-card-image">
-              {event.image ? <img src={event.image} alt={event.title} /> : null}
+              {event.image ? (
+                <img src={event.image} alt={event.title} />
+              ) : (
+                <div className="timeline-card-placeholder" />
+              )}
             </div>
             <p className="timeline-card-title">{event.title}</p>
           </div>
         ))}
       </div>
+
       <div className="timeline-axis">
         <button
           className="timeline-nav-btn"
           onClick={handlePrev}
           disabled={currentIndex === 0}
         >
-          ←
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
         </button>
-        <div className="timeline-chart" style={{ height: "80px" }}>
+        <div className="timeline-chart" style={{ height: "60px" }}>
           <Line ref={chartRef} data={chartData} options={chartOptions} />
         </div>
         <button
@@ -120,16 +133,31 @@ export default function Timeline({ events }) {
           onClick={handleNext}
           disabled={currentIndex >= events.length - visibleCount}
         >
-          →
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </button>
       </div>
+
       <div className="timeline-years">
         {visibleEvents.map((event) => (
-          <div key={event.id} className="timeline-year">
-            {new Date(event.date).getFullYear()}
+          <div key={event.id} className="timeline-year-block">
+            <span className="timeline-year-num">
+              {new Date(event.date).getFullYear()}
+            </span>
+            <p className="timeline-year-desc">
+              {event.description?.slice(0, 100)}
+            </p>
           </div>
         ))}
       </div>
+
       <EventModal
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
