@@ -118,6 +118,8 @@ h6 {
   letter-spacing: 0.15rem;
   text-transform: uppercase;
   color: var(--color-text);
+  display: block;
+  text-align: center;
 }
 
 .section-title {

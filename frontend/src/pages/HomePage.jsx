@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getEvents } from "../api/events";
 import TimelinePreview from "../components/TimelinePreview";
 import { useAuth } from "../context/AuthContext";
@@ -79,19 +79,15 @@ export default function HomePage() {
                 historical context.
               </p>
               <div className="learn-card-actions">
-                <button className="btn btn-outline-white">Browse</button>
-                <span className="learn-card-link">
-                  Fiche
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  >
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </span>
+                <button
+                  className="btn btn-outline-white"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate("/events");
+                  }}
+                >
+                  Browse
+                </button>
               </div>
             </div>
 
@@ -113,7 +109,11 @@ export default function HomePage() {
               </div>
               <h3>Iconic Consoles</h3>
               <p>Discover the machines that revolutionized the industry.</p>
-              <span className="learn-card-link">
+              <Link
+                to="/events"
+                className="learn-card-link"
+                onClick={(e) => e.stopPropagation()}
+              >
                 Fiche
                 <svg
                   viewBox="0 0 24 24"
@@ -124,7 +124,7 @@ export default function HomePage() {
                 >
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
-              </span>
+              </Link>
             </div>
 
             <div
@@ -148,7 +148,11 @@ export default function HomePage() {
                 Learn the stories of the creators and visionaries who built it
                 all.
               </p>
-              <span className="learn-card-link">
+              <Link
+                to="/personalities"
+                className="learn-card-link"
+                onClick={(e) => e.stopPropagation()}
+              >
                 Fiche
                 <svg
                   viewBox="0 0 24 24"
@@ -159,7 +163,7 @@ export default function HomePage() {
                 >
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
-              </span>
+              </Link>
             </div>
           </div>
         </div>
@@ -181,7 +185,7 @@ export default function HomePage() {
             >
               View all
             </button>
-            <span className="timeline-preview-link">
+            <Link to="/events" className="timeline-preview-link">
               Timeline
               <svg
                 viewBox="0 0 24 24"
@@ -192,7 +196,7 @@ export default function HomePage() {
               >
                 <polyline points="9 18 15 12 9 6" />
               </svg>
-            </span>
+            </Link>
           </div>
           {loading && <p>Loading...</p>}
           {error && <div className="alert alert-error">{error}</div>}
