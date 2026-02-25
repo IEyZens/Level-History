@@ -1,3 +1,4 @@
+import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import AuthProvider from "./context/AuthContext";
 import AppRouter from "./router/AppRouter";
@@ -9,6 +10,7 @@ function App() {
       <main className="main-content">
         <AppRouter />
       </main>
+      <Footer />
     </AuthProvider>
   );
 }
