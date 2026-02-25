@@ -219,7 +219,7 @@ export default function HomePage() {
                 Sign Up
               </button>
               <button
-                className="btn btn-outline"
+                className="btn btn-outline-dark"
                 onClick={() => navigate("/login")}
               >
                 Log In
@@ -235,6 +235,7 @@ export default function HomePage() {
             </button>
           )}
         </div>
+        <div className="home-community-image" />
       </section>
     </div>
   );
