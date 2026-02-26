@@ -4,11 +4,7 @@ export default function Accordion({ items }) {
   const [openIndex, setOpenIndex] = useState(null);
 
   function handleToggle(index) {
-    if (openIndex === index) {
-      setOpenIndex(null);
-    } else {
-      setOpenIndex(index);
-    }
+    setOpenIndex(openIndex === index ? null : index);
   }
 
   return (
@@ -20,13 +16,22 @@ export default function Accordion({ items }) {
             onClick={() => handleToggle(index)}
           >
             <span>{item.question}</span>
-            {openIndex !== index ? <span>+</span> : <span>-</span>}
+            <svg
+              className={`accordion-icon ${openIndex === index ? "accordion-icon--open" : ""}`}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
           </button>
-          {openIndex === index && (
-            <div className="accordion-content">
-              <p>{item.answer}</p>
-            </div>
-          )}
+          <div
+            className={`accordion-content ${openIndex === index ? "accordion-content--open" : ""}`}
+          >
+            <p>{item.answer}</p>
+          </div>
         </div>
       ))}
     </div>
