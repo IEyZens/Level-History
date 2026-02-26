@@ -94,7 +94,7 @@ model Personality {
   name String
   role String?
   biography String @db.Text
-  image String
+  image String?
   twitter String?
   linkedin String?
   website String?

@@ -26,7 +26,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div>
+    <div className="page-fade">
       {/* Hero */}
       <section className="home-hero">
         <h1>Explore Video Game History</h1>

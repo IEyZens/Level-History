@@ -3,11 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { getPersonalities } from "../api/personalities";
 import Accordion from "../components/Accordion";
 
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 export default function PersonalitiesPage() {
   const [personalities, setPersonalities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeCategory, setActiveCategory] = useState("ALL");
+  const [expandedIds, setExpandedIds] = useState(new Set());
   const navigate = useNavigate();
 
   const CATEGORY_LABELS = {
@@ -68,6 +71,25 @@ export default function PersonalitiesPage() {
     EXECUTIVE: "Executives",
   };
 
+  const LEGENDS_CONTENT = {
+    ALL: {
+      title: "All Personalities",
+      desc: "Discover all the figures who shaped the video game industry.",
+    },
+    VISIONARY: {
+      title: "The Visionaries",
+      desc: "Those who set the rules and created entire worlds from imagination.",
+    },
+    BUILDER: {
+      title: "The Builders",
+      desc: "Meet those who laid the foundations of everything young people love today.",
+    },
+    EXECUTIVE: {
+      title: "The Executives",
+      desc: "Those who built the empires and led the studios to global success.",
+    },
+  };
+
   const FAQ_ITEMS = [
     {
       question: "Who are the personalities?",
@@ -111,8 +133,16 @@ export default function PersonalitiesPage() {
     fetchPersonalities();
   }, []);
 
+  function toggleExpand(id) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
   return (
-    <div>
+    <div className="page-fade">
       {/* Hero */}
       <section className="personalities-hero">
         <h1>Les visionnaires du jeu</h1>
@@ -215,67 +245,115 @@ export default function PersonalitiesPage() {
               )}
               {!loading && !error && filteredPersonalities.length > 0 && (
                 <div className="personalities-list">
-                  {filteredPersonalities.map((personality) => (
-                    <div key={personality.id} className="personality-card">
-                      <div className="personality-img-wrapper">
-                        {personality.image ? (
-                          <img
-                            src={personality.image}
-                            alt={personality.name}
-                            className="personality-img"
-                            onError={(e) => {
-                              e.target.style.display = "none";
-                              e.target.nextSibling.style.display = "flex";
+                  {filteredPersonalities.map((personality) => {
+                    const isExpanded = expandedIds.has(personality.id);
+                    const bio = personality.biography ?? "";
+                    const isLong = bio.length > 120;
+
+                    return (
+                      <div key={personality.id} className="personality-card">
+                        <div className="personality-img-wrapper">
+                          {personality.image ? (
+                            <img
+                              src={`${BASE_URL}${personality.image}`}
+                              alt={personality.name}
+                              className="personality-img"
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                                e.target.nextSibling.style.display = "flex";
+                              }}
+                            />
+                          ) : null}
+                          <div
+                            className="personality-img-placeholder"
+                            style={{
+                              display: personality.image ? "none" : "flex",
                             }}
-                          />
-                        ) : null}
-                        <div
-                          className="personality-img-placeholder"
-                          style={{
-                            display: personality.image ? "none" : "flex",
-                          }}
-                        >
-                          {personality.name?.charAt(0).toUpperCase()}
+                          >
+                            {personality.name?.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                        <div className="personality-info">
+                          <h3>{personality.name}</h3>
+                          <p className="personality-role">{personality.role}</p>
+                          <p className="personality-bio">
+                            {isExpanded || !isLong ? (
+                              bio
+                            ) : (
+                              <>
+                                {bio.slice(0, 120)}
+                                <span>... </span>
+                                <button
+                                  onClick={() => toggleExpand(personality.id)}
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    padding: 0,
+                                    fontSize: "0.85rem",
+                                    fontWeight: 600,
+                                    color: "var(--color-text)",
+                                    cursor: "pointer",
+                                    textDecoration: "underline",
+                                    textUnderlineOffset: "3px",
+                                  }}
+                                >
+                                  View more
+                                </button>
+                              </>
+                            )}
+                            {isExpanded && isLong && (
+                              <button
+                                onClick={() => toggleExpand(personality.id)}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  padding: 0,
+                                  fontSize: "0.85rem",
+                                  fontWeight: 600,
+                                  color: "var(--color-text)",
+                                  cursor: "pointer",
+                                  textDecoration: "underline",
+                                  textUnderlineOffset: "3px",
+                                  marginLeft: "0.25rem",
+                                }}
+                              >
+                                View less
+                              </button>
+                            )}
+                          </p>
+                          <div className="personality-socials">
+                            {personality.twitter && (
+                              <a
+                                href={personality.twitter}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                X
+                              </a>
+                            )}
+                            {personality.linkedin && (
+                              <a
+                                href={personality.linkedin}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                in
+                              </a>
+                            )}
+                            {personality.website && (
+                              <a
+                                href={personality.website}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                🌐
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <div className="personality-info">
-                        <h3>{personality.name}</h3>
-                        <p className="personality-role">{personality.role}</p>
-                        <p className="personality-bio">
-                          {personality.biography?.slice(0, 120)}...
-                        </p>
-                        <div className="personality-socials">
-                          {personality.twitter && (
-                            <a
-                              href={personality.twitter}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              X
-                            </a>
-                          )}
-                          {personality.linkedin && (
-                            <a
-                              href={personality.linkedin}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              in
-                            </a>
-                          )}
-                          {personality.website && (
-                            <a
-                              href={personality.website}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              🌐
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

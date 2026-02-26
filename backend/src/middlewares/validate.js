@@ -16,24 +16,20 @@ export const validate = (schema) => {
 
       next();
     } catch (error) {
-      // Si c'est une erreur Zod
       if (error instanceof z.ZodError) {
-        // Formater les erreurs pour le client
         const errors = error.errors.map((err) => ({
           field: err.path.join("."),
           message: err.message,
         }));
-
-        return res.status(400).json({
-          error: "Validation failed",
-          details: errors,
-        });
+        return res
+          .status(400)
+          .json({ error: "Validation failed", details: errors });
       }
 
-      // Autre type d'erreur
-      return res.status(500).json({
-        error: "Internal Server Error",
-      });
+      // Ajoute ce log pour voir la vraie erreur :
+      console.error("Validate middleware non-Zod error:", error);
+
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   };
 };

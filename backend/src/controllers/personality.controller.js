@@ -39,11 +39,7 @@ export const createPersonality = async (req, res) => {
     const { name, role, biography, category, twitter, linkedin, website } =
       req.body;
 
-    if (!req.file) {
-      return res.status(400).json({ error: "Image file is required" });
-    }
-
-    const imageUrl = `/uploads/${req.file.filename}`;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
     const newPersonality = await prisma.personality.create({
       data: {

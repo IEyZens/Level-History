@@ -30,7 +30,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="page">
+    <div className="page-fade">
       <h1>Register</h1>
       {error && <div className="alert alert-error">{error}</div>}
       <form onSubmit={handleSubmit}>

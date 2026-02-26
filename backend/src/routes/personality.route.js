@@ -40,6 +40,16 @@ router.put(
   validate(updatePersonalitySchema),
   updatePersonality,
 );
+router.patch(
+  "/:id",
+  verifyToken,
+  isAdmin,
+  validateParams(idParamSchema),
+  upload.single("image"),
+  verifyFileType,
+  validate(updatePersonalitySchema),
+  updatePersonality,
+);
 router.delete(
   "/:id",
   verifyToken,

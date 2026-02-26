@@ -79,7 +79,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="page">
+    <div className="page-fade">
       <div className="profile-hero">
         {profile.avatar ? (
           <img

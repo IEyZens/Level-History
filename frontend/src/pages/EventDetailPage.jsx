@@ -101,7 +101,7 @@ export default function EventDetailPage() {
   if (!event) return <p style={{ padding: "2rem" }}>Event not found.</p>;
 
   return (
-    <div>
+    <div className="page-fade">
       {/* Hero */}
       <section className="event-detail-hero">
         <h1>{event.title}</h1>

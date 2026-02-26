@@ -24,6 +24,8 @@ export const createPersonalitySchema = z.object({
     .transform((val) => new Date(val))
     .optional(),
 
+  image: z.string().optional(),
+
   nationality: z
     .string()
     .min(2, "Nationality must be at least 2 characters long")
@@ -36,15 +38,18 @@ export const createPersonalitySchema = z.object({
     .max(100, "Role must not exceed 100 characters")
     .optional(),
 
-  twitter: z.string().url("Twitter must be a valid URL").optional().nullable(),
-
-  linkedin: z
-    .string()
-    .url("LinkedIn must be a valid URL")
-    .optional()
-    .nullable(),
-
-  website: z.string().url("Website must be a valid URL").optional().nullable(),
+  twitter: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().url("Twitter must be a valid URL").optional().nullable(),
+  ),
+  linkedin: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().url("LinkedIn must be a valid URL").optional().nullable(),
+  ),
+  website: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().url("Website must be a valid URL").optional().nullable(),
+  ),
 });
 
 /**
@@ -84,13 +89,16 @@ export const updatePersonalitySchema = z.object({
     .max(100, "Role must not exceed 100 characters")
     .optional(),
 
-  twitter: z.string().url("Twitter must be a valid URL").optional().nullable(),
-
-  linkedin: z
-    .string()
-    .url("LinkedIn must be a valid URL")
-    .optional()
-    .nullable(),
-
-  website: z.string().url("Website must be a valid URL").optional().nullable(),
+  twitter: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().url("Twitter must be a valid URL").optional().nullable(),
+  ),
+  linkedin: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().url("LinkedIn must be a valid URL").optional().nullable(),
+  ),
+  website: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().url("Website must be a valid URL").optional().nullable(),
+  ),
 });

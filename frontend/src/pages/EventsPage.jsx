@@ -88,7 +88,7 @@ export default function EventsPage() {
   }
 
   return (
-    <div>
+    <div className="page-fade">
       {/* Hero */}
       <section className="events-hero">
         <h1>Navigate Through Time</h1>

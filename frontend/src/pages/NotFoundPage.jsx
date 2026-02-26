@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function NotFoundPage() {
   return (
     <div
-      className="page"
+      className="page-fade"
       style={{ textAlign: "center", padding: "5rem 1.5rem" }}
     >
       <h1>404</h1>
