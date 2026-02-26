@@ -1167,7 +1167,9 @@ h6 {
 .accordion-content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease;
+  transition:
+    max-height 0.3s ease,
+    padding 0.3s ease;
   padding: 0;
   text-align: left;
 }
@@ -2002,13 +2004,21 @@ h6 {
 
 .events-cta {
   text-align: center;
-  padding: 6rem 1.5rem;
-  max-width: 600px;
+  padding: 6rem 1.5rem 0;
+  max-width: var(--max-width);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+}
+
+.events-cta-banner {
+  width: 100%;
+  height: 500px;
+  background: url("https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=1600")
+    center/cover no-repeat;
+  margin-top: 3rem;
 }
 
 .events-cta h2 {

@@ -188,6 +188,7 @@ export default function EventsPage() {
             Explore
           </button>
         </div>
+        <div className="events-cta-banner" />
       </section>
     </div>
   );
