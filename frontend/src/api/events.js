@@ -46,7 +46,7 @@ export async function createEvent({
 }
 
 export async function updateEvent(id, fields) {
-  const res = await api.put(`/events/${id}`, fields);
+  const res = await api.patch(`/events/${id}`, fields);
   const data = await res.json();
 
   if (!res.ok) {
