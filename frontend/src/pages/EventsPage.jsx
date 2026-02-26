@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getEvents } from "../api/events";
 import Accordion from "../components/Accordion";
@@ -11,6 +11,7 @@ export default function EventsPage() {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef(null);
   const navigate = useNavigate();
 
   const CATEGORY_LABELS = {
@@ -66,6 +67,17 @@ export default function EventsPage() {
     fetchEvents();
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (filterRef.current && !filterRef.current.contains(e.target)) {
+        setFilterOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   function handleFilter(category) {
     setActiveCategory(category);
     if (category === "ALL") {
@@ -97,7 +109,7 @@ export default function EventsPage() {
             or innovation.
           </p>
           <div className="events-filter-row">
-            <div className="events-filter-dropdown">
+            <div className="events-filter-dropdown" ref={filterRef}>
               <button
                 className="btn btn-outline-dark events-filter-btn"
                 onClick={() => setFilterOpen(!filterOpen)}
