@@ -5,6 +5,7 @@ export default function Timeline({ events }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(3);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [direction, setDirection] = useState("right");
 
   const visibleEvents = events.slice(currentIndex, currentIndex + visibleCount);
 
@@ -24,12 +25,14 @@ export default function Timeline({ events }) {
 
   function handlePrev() {
     if (currentIndex > 0) {
+      setDirection("left");
       setCurrentIndex(currentIndex - 1);
     }
   }
 
   function handleNext() {
     if (currentIndex < events.length - visibleCount) {
+      setDirection("right");
       setCurrentIndex(currentIndex + 1);
     }
   }
@@ -54,7 +57,11 @@ export default function Timeline({ events }) {
           </svg>
         </button>
 
-        <div className="timeline-content">
+        <div
+          className="timeline-content"
+          key={currentIndex}
+          data-direction={direction}
+        >
           <div className="timeline-cards">
             {visibleEvents.map((event) => (
               <div
