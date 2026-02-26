@@ -34,6 +34,14 @@ router.put(
   validate(updateEventSchema),
   updateEvent,
 );
+router.patch(
+  "/:id",
+  verifyToken,
+  isAdmin,
+  validateParams(idParamSchema),
+  validate(updateEventSchema),
+  updateEvent,
+);
 router.delete(
   "/:id",
   verifyToken,
