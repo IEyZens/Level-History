@@ -165,7 +165,7 @@ export default function EventsPage() {
           <div className="faq-cta">
             <h3>Need more help?</h3>
             <p>Contact our team for any specific question.</p>
-            <button className="btn btn-outline">Write to us</button>
+            <button className="btn btn-outline-dark">Write to us</button>
           </div>
         </div>
       </section>
