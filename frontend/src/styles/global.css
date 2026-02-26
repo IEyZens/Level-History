@@ -83,6 +83,12 @@ textarea {
   font-family: inherit;
 }
 
+textarea {
+  resize: none;
+  overflow: hidden;
+  min-height: 80px;
+}
+
 h1,
 h2,
 h3,
@@ -1631,12 +1637,13 @@ h6 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: var(--radius);
+  padding: 0.65rem 1rem;
+  border-radius: 0px;
   border: 1px solid var(--color-border);
   background: none;
   cursor: pointer;
   transition: all var(--transition);
+  height: 100%;
 }
 
 .like-btn:hover {
@@ -2035,6 +2042,134 @@ h6 {
 .events-cta-buttons {
   display: flex;
   gap: 1rem;
+}
+
+.event-detail-hero {
+  text-align: center;
+  padding: 6rem 1.5rem 3rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.event-detail-hero h1 {
+  font-family: var(--font-body);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  margin-bottom: 0.75rem;
+  line-height: 1.1;
+}
+
+.event-detail-hero p {
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.event-detail-content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.event-detail-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.event-detail-banner {
+  width: 100%;
+}
+
+.event-detail-banner img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+}
+
+.event-detail-banner-placeholder {
+  width: 100%;
+  height: 400px;
+  background: #d4d4d4;
+}
+
+.event-detail-description {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--color-text);
+  white-space: pre-line;
+  max-width: 750px;
+}
+
+.event-detail-right {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.event-detail-likes {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.like-btn span {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.event-detail-comments {
+  max-width: 750px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #1a1a1a;
+}
+
+.event-detail-comments h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.event-detail-comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.event-detail-login-hint {
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.event-detail-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.event-detail-comment {
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.event-detail-comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.event-detail-comment-header strong {
+  font-size: 0.9rem;
+}
+
+.event-detail-comment-header small {
+  font-size: 0.8rem;
+  color: var(--color-text);
 }
 
 @media (max-width: 768px) {

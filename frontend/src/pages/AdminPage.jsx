@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createEvent, deleteEvent, getEvents } from "../api/events";
+import { useAutoResize } from "../hooks/useAutoResize";
 
 export default function AdminPage() {
   const [events, setEvents] = useState([]);
@@ -13,6 +14,9 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formLoading, setFormLoading] = useState(false);
+
+  const textareaRef = useRef(null);
+  useAutoResize(textareaRef);
 
   const EVENT_CATEGORIES = {
     OTHER: "Other",
@@ -87,6 +91,7 @@ export default function AdminPage() {
           <div className="form-group">
             <label className="form-label">Description</label>
             <textarea
+              ref={textareaRef}
               className="form-input"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
