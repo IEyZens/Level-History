@@ -45,31 +45,33 @@ const PERSONALITY_ROLES = [
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const CATEGORY_BADGE_COLORS = {
+  CONSOLE_RELEASE: "#e8f0fe",
+  GAME_RELEASE: "#e6f4ea",
+  COMPANY_FOUNDING: "#fce8e6",
+  TECHNOLOGY: "#fef7e0",
+  CULTURAL_IMPACT: "#f3e8fd",
+  OTHER: "#f1f3f4",
+};
+
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function FormField({ label, children }) {
+function FormField({ label, hint, children }) {
   return (
     <div className="form-group">
       <label className="form-label">{label}</label>
       {children}
+      {hint && <span className="admin-field-hint">{hint}</span>}
     </div>
   );
 }
 
-function FormActions({ loading, editing, onCreate, onCancel }) {
+function SectionHeader({ title, count }) {
   return (
-    <div style={{ display: "flex", gap: "1rem" }}>
-      <button type="submit" className="btn btn-primary" disabled={loading}>
-        {loading ? "Saving..." : editing ? "Save Changes" : onCreate}
-      </button>
-      {editing && (
-        <button
-          type="button"
-          className="btn btn-outline-dark"
-          onClick={onCancel}
-        >
-          Cancel
-        </button>
+    <div className="admin-section-header">
+      <h2 className="admin-section-title">{title}</h2>
+      {count !== undefined && (
+        <span className="admin-count-badge">{count}</span>
       )}
     </div>
   );
@@ -81,6 +83,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("events");
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   // Events
   const [events, setEvents] = useState([]);
@@ -143,6 +146,11 @@ export default function AdminPage() {
     fetchPersonalities();
   }, []);
 
+  function showSuccess(msg) {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(""), 3000);
+  }
+
   // ─── Event Handlers ───────────────────────────────────────────────────────
 
   function resetEventForm() {
@@ -165,19 +173,21 @@ export default function AdminPage() {
       image: event.image || "",
       category: event.category || "OTHER",
     });
-    setActiveTab("events");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function handleEventSubmit(e) {
     e.preventDefault();
     setFormLoading(true);
+    setError("");
     try {
       if (editingEvent) {
         await updateEvent(editingEvent.id, eventFields);
+        showSuccess("Event updated successfully.");
         resetEventForm();
       } else {
         await createEvent(eventFields);
+        showSuccess("Event created successfully.");
         setEventFields({
           title: "",
           description: "",
@@ -188,19 +198,21 @@ export default function AdminPage() {
       }
       fetchEvents();
     } catch (e) {
-      console.error(e);
+      setError(e.message);
     } finally {
       setFormLoading(false);
     }
   }
 
   async function handleDeleteEvent(id) {
-    if (!window.confirm("Delete this event?")) return;
+    if (!window.confirm("Delete this event? This action is irreversible."))
+      return;
     try {
       await deleteEvent(id);
       fetchEvents();
+      showSuccess("Event deleted.");
     } catch (e) {
-      console.error(e);
+      setError(e.message);
     }
   }
 
@@ -235,7 +247,6 @@ export default function AdminPage() {
     });
     setPersImageFile(null);
     setPersImagePreview(p.image ? `${BASE_URL}${p.image}` : "");
-    setActiveTab("personalities");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -250,365 +261,622 @@ export default function AdminPage() {
   async function handlePersonalitySubmit(e) {
     e.preventDefault();
     setFormLoading(true);
+    setError("");
     try {
       const formData = new FormData();
       Object.entries(persFields).forEach(([k, v]) => formData.append(k, v));
       if (persImageFile) formData.append("image", persImageFile);
-
       if (editingPersonality) {
         await updatePersonality(editingPersonality.id, formData);
+        showSuccess("Personality updated successfully.");
         resetPersForm();
       } else {
         await createPersonality(formData);
+        showSuccess("Personality created successfully.");
         resetPersForm();
       }
       fetchPersonalities();
     } catch (e) {
-      console.error(e);
+      setError(e.message);
     } finally {
       setFormLoading(false);
     }
   }
 
   async function handleDeletePersonality(id) {
-    if (!window.confirm("Delete this personality?")) return;
+    if (
+      !window.confirm("Delete this personality? This action is irreversible.")
+    )
+      return;
     try {
       await deletePersonality(id);
       fetchPersonalities();
+      showSuccess("Personality deleted.");
     } catch (e) {
-      console.error(e);
+      setError(e.message);
     }
   }
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="page-fade">
-      <h1>Admin Panel</h1>
-      {error && <div className="alert alert-error">{error}</div>}
-
-      <div className="admin-tabs">
-        {["events", "personalities"].map((tab) => (
-          <button
-            key={tab}
-            className={`admin-tab ${activeTab === tab ? "admin-tab--active" : ""}`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Events Tab ─────────────────────────────────────────────────────── */}
-      {activeTab === "events" && (
-        <div className="card" style={{ padding: "2rem", marginBottom: "2rem" }}>
-          <h2>{editingEvent ? "Edit Event" : "Create Event"}</h2>
-          <form
-            onSubmit={handleEventSubmit}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-              marginBottom: "2rem",
-            }}
-          >
-            <FormField label="Title">
-              <input
-                className="form-input"
-                value={eventFields.title}
-                required
-                onChange={(e) =>
-                  setEventFields((f) => ({ ...f, title: e.target.value }))
-                }
-              />
-            </FormField>
-            <FormField label="Description">
-              <textarea
-                ref={eventTextareaRef}
-                className="form-input"
-                rows="4"
-                required
-                value={eventFields.description}
-                onChange={(e) =>
-                  setEventFields((f) => ({ ...f, description: e.target.value }))
-                }
-              />
-            </FormField>
-            <FormField label="Date">
-              <input
-                type="date"
-                className="form-input"
-                value={eventFields.date}
-                required
-                onChange={(e) =>
-                  setEventFields((f) => ({ ...f, date: e.target.value }))
-                }
-              />
-            </FormField>
-            <FormField label="Image URL">
-              <input
-                className="form-input"
-                value={eventFields.image}
-                onChange={(e) =>
-                  setEventFields((f) => ({ ...f, image: e.target.value }))
-                }
-              />
-            </FormField>
-            <FormField label="Category">
-              <select
-                className="form-input"
-                value={eventFields.category}
-                onChange={(e) =>
-                  setEventFields((f) => ({ ...f, category: e.target.value }))
-                }
-              >
-                {Object.entries(EVENT_CATEGORIES).map(([v, l]) => (
-                  <option key={v} value={v}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-            <FormActions
-              loading={formLoading}
-              editing={editingEvent}
-              onCreate="Create Event"
-              onCancel={resetEventForm}
-            />
-          </form>
-
-          <h2>Manage Events</h2>
-          {eventsLoading && <p>Loading...</p>}
-          {events.map((event) => (
-            <div
-              key={event.id}
-              className="card"
-              style={{ padding: "1rem", marginBottom: "1rem" }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div>
-                  <strong>{event.title}</strong>
-                  <br />
-                  <small>{new Date(event.date).toLocaleDateString()}</small>
-                </div>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button
-                    onClick={() => handleEditEvent(event)}
-                    className="btn btn-outline-dark"
-                    style={{ fontSize: "0.85rem" }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteEvent(event.id)}
-                    className="btn btn-danger"
-                    style={{ fontSize: "0.85rem" }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+    <div className="admin-layout page-fade">
+      {/* ── Sidebar ──────────────────────────────────────────────────────────── */}
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-header">
+          <span className="admin-sidebar-label">Admin</span>
+          <h1 className="admin-sidebar-title">Dashboard</h1>
         </div>
-      )}
 
-      {/* ── Personalities Tab ───────────────────────────────────────────────── */}
-      {activeTab === "personalities" && (
-        <div className="card" style={{ padding: "2rem", marginBottom: "2rem" }}>
-          <h2>
-            {editingPersonality ? "Edit Personality" : "Create Personality"}
-          </h2>
-          <form
-            onSubmit={handlePersonalitySubmit}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-              marginBottom: "2rem",
-            }}
-          >
-            <FormField label="Name">
-              <input
-                className="form-input"
-                value={persFields.name}
-                required
-                onChange={(e) =>
-                  setPersFields((f) => ({ ...f, name: e.target.value }))
-                }
-              />
-            </FormField>
-            <FormField label="Role">
-              <select
-                className="form-input"
-                value={persFields.role}
-                onChange={(e) =>
-                  setPersFields((f) => ({ ...f, role: e.target.value }))
-                }
-              >
-                <option value="">— Select a role —</option>
-                {PERSONALITY_ROLES.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-            <FormField label="Biography">
-              <textarea
-                ref={persTextareaRef}
-                className="form-input"
-                rows="4"
-                required
-                value={persFields.biography}
-                onChange={(e) =>
-                  setPersFields((f) => ({ ...f, biography: e.target.value }))
-                }
-              />
-            </FormField>
-            <FormField label="Image">
-              {persImagePreview && (
-                <img
-                  src={persImagePreview}
-                  alt="Preview"
-                  style={{
-                    width: "64px",
-                    height: "64px",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    marginBottom: "0.5rem",
-                  }}
-                />
-              )}
-              <input
-                ref={persImageRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="form-input"
-                onChange={handlePersImageChange}
-                required={!editingPersonality}
-              />
-              {editingPersonality && !persImageFile && (
-                <small style={{ color: "var(--color-text-muted)" }}>
-                  Leave empty to keep current image
-                </small>
-              )}
-            </FormField>
-            <FormField label="Category">
-              <select
-                className="form-input"
-                value={persFields.category}
-                onChange={(e) =>
-                  setPersFields((f) => ({ ...f, category: e.target.value }))
-                }
-              >
-                {Object.entries(PERSONALITY_CATEGORIES).map(([v, l]) => (
-                  <option key={v} value={v}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-            </FormField>
-            <FormField label="Twitter URL">
-              <input
-                className="form-input"
-                value={persFields.twitter}
-                onChange={(e) =>
-                  setPersFields((f) => ({ ...f, twitter: e.target.value }))
-                }
-              />
-            </FormField>
-            <FormField label="LinkedIn URL">
-              <input
-                className="form-input"
-                value={persFields.linkedin}
-                onChange={(e) =>
-                  setPersFields((f) => ({ ...f, linkedin: e.target.value }))
-                }
-              />
-            </FormField>
-            <FormField label="Website URL">
-              <input
-                className="form-input"
-                value={persFields.website}
-                onChange={(e) =>
-                  setPersFields((f) => ({ ...f, website: e.target.value }))
-                }
-              />
-            </FormField>
-            <FormActions
-              loading={formLoading}
-              editing={editingPersonality}
-              onCreate="Create Personality"
-              onCancel={resetPersForm}
-            />
-          </form>
-
-          <h2>Manage Personalities</h2>
-          {persLoading && <p>Loading...</p>}
-          {personalities.map((p) => (
-            <div
-              key={p.id}
-              className="card"
-              style={{ padding: "1rem", marginBottom: "1rem" }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "1rem" }}
+        <nav className="admin-nav">
+          <p className="admin-nav-section">Content</p>
+          {[
+            {
+              key: "events",
+              label: "Events",
+              count: events.length,
+              icon: (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
                 >
-                  {p.image && (
-                    <img
-                      src={`${BASE_URL}${p.image}`}
-                      alt={p.name}
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  )}
-                  <div>
-                    <strong>{p.name}</strong>
-                    <br />
-                    <small>
-                      {p.role} · {p.category}
-                    </small>
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button
-                    onClick={() => handleEditPersonality(p)}
-                    className="btn btn-outline-dark"
-                    style={{ fontSize: "0.85rem" }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeletePersonality(p.id)}
-                    className="btn btn-danger"
-                    style={{ fontSize: "0.85rem" }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18" />
+                </svg>
+              ),
+            },
+            {
+              key: "personalities",
+              label: "Personalities",
+              count: personalities.length,
+              icon: (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                >
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                </svg>
+              ),
+            },
+          ].map(({ key, label, count, icon }) => (
+            <button
+              key={key}
+              className={`admin-nav-item ${activeTab === key ? "admin-nav-item--active" : ""}`}
+              onClick={() => {
+                setActiveTab(key);
+                resetEventForm();
+                resetPersForm();
+              }}
+            >
+              <span className="admin-nav-icon">{icon}</span>
+              <span className="admin-nav-label">{label}</span>
+              <span className="admin-nav-count">{count}</span>
+            </button>
           ))}
+        </nav>
+
+        <div className="admin-sidebar-footer">
+          <p className="admin-sidebar-footer-text">Level History</p>
         </div>
-      )}
+      </aside>
+
+      {/* ── Main ─────────────────────────────────────────────────────────────── */}
+      <main className="admin-main">
+        {/* Notifications */}
+        {error && (
+          <div className="alert alert-error" style={{ marginBottom: "1.5rem" }}>
+            {error}
+          </div>
+        )}
+        {successMsg && (
+          <div
+            className="alert alert-success"
+            style={{ marginBottom: "1.5rem" }}
+          >
+            {successMsg}
+          </div>
+        )}
+
+        {/* ── Events ───────────────────────────────────────────────────────── */}
+        {activeTab === "events" && (
+          <div className="admin-content-grid">
+            {/* Form */}
+            <section className="admin-form-panel">
+              <div className="admin-panel-header">
+                <h2 className="admin-panel-title">
+                  {editingEvent ? "Edit Event" : "New Event"}
+                </h2>
+                {editingEvent && (
+                  <button
+                    className="admin-panel-cancel"
+                    onClick={resetEventForm}
+                  >
+                    ✕ Cancel
+                  </button>
+                )}
+              </div>
+
+              {editingEvent && (
+                <div className="admin-editing-badge">
+                  Editing: <strong>{editingEvent.title}</strong>
+                </div>
+              )}
+
+              <form onSubmit={handleEventSubmit} className="admin-form">
+                <FormField label="Title">
+                  <input
+                    className="form-input"
+                    placeholder="e.g. Launch of the PlayStation"
+                    value={eventFields.title}
+                    required
+                    onChange={(e) =>
+                      setEventFields((f) => ({ ...f, title: e.target.value }))
+                    }
+                  />
+                </FormField>
+                <FormField label="Description">
+                  <textarea
+                    ref={eventTextareaRef}
+                    className="form-input"
+                    rows="4"
+                    placeholder="Describe this event..."
+                    required
+                    value={eventFields.description}
+                    onChange={(e) =>
+                      setEventFields((f) => ({
+                        ...f,
+                        description: e.target.value,
+                      }))
+                    }
+                  />
+                </FormField>
+                <div className="admin-form-row">
+                  <FormField label="Date">
+                    <input
+                      type="date"
+                      className="form-input"
+                      value={eventFields.date}
+                      required
+                      onChange={(e) =>
+                        setEventFields((f) => ({ ...f, date: e.target.value }))
+                      }
+                    />
+                  </FormField>
+                  <FormField label="Category">
+                    <select
+                      className="form-input"
+                      value={eventFields.category}
+                      onChange={(e) =>
+                        setEventFields((f) => ({
+                          ...f,
+                          category: e.target.value,
+                        }))
+                      }
+                    >
+                      {Object.entries(EVENT_CATEGORIES).map(([v, l]) => (
+                        <option key={v} value={v}>
+                          {l}
+                        </option>
+                      ))}
+                    </select>
+                  </FormField>
+                </div>
+                <FormField
+                  label="Image URL"
+                  hint="Paste a direct image URL (jpg, png, webp)"
+                >
+                  <input
+                    className="form-input"
+                    placeholder="https://..."
+                    value={eventFields.image}
+                    onChange={(e) =>
+                      setEventFields((f) => ({ ...f, image: e.target.value }))
+                    }
+                  />
+                </FormField>
+                {eventFields.image && (
+                  <div className="admin-image-preview">
+                    <img
+                      src={eventFields.image}
+                      alt="Preview"
+                      onError={(e) => (e.target.style.display = "none")}
+                    />
+                  </div>
+                )}
+                <div className="admin-form-actions">
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={formLoading}
+                  >
+                    {formLoading
+                      ? "Saving..."
+                      : editingEvent
+                        ? "Save Changes"
+                        : "Create Event"}
+                  </button>
+                  {editingEvent && (
+                    <button
+                      type="button"
+                      className="btn btn-outline"
+                      onClick={resetEventForm}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+            </section>
+
+            {/* List */}
+            <section className="admin-list-panel">
+              <SectionHeader title="All Events" count={events.length} />
+              {eventsLoading ? (
+                <div className="admin-loading">Loading...</div>
+              ) : events.length === 0 ? (
+                <div className="admin-empty">
+                  No events yet. Create your first one.
+                </div>
+              ) : (
+                <div className="admin-list">
+                  {events.map((event) => (
+                    <div
+                      key={event.id}
+                      className={`admin-list-item ${editingEvent?.id === event.id ? "admin-list-item--editing" : ""}`}
+                    >
+                      <div className="admin-list-item-img">
+                        {event.image ? (
+                          <img src={event.image} alt={event.title} />
+                        ) : (
+                          <div className="admin-list-item-img-placeholder">
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                            >
+                              <rect x="3" y="3" width="18" height="18" rx="2" />
+                              <circle cx="8.5" cy="8.5" r="1.5" />
+                              <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <div className="admin-list-item-info">
+                        <p className="admin-list-item-title">{event.title}</p>
+                        <div className="admin-list-item-meta">
+                          <span>
+                            {new Date(event.date).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                          <span
+                            className="admin-category-pill"
+                            style={{
+                              background:
+                                CATEGORY_BADGE_COLORS[event.category] ||
+                                "#f1f3f4",
+                            }}
+                          >
+                            {EVENT_CATEGORIES[event.category] || event.category}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="admin-list-item-actions">
+                        <button
+                          onClick={() => handleEditEvent(event)}
+                          className="admin-action-btn admin-action-btn--edit"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          >
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteEvent(event.id)}
+                          className="admin-action-btn admin-action-btn--delete"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          >
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                            <path d="M10 11v6M14 11v6" />
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
+        )}
+
+        {/* ── Personalities ─────────────────────────────────────────────────── */}
+        {activeTab === "personalities" && (
+          <div className="admin-content-grid">
+            {/* Form */}
+            <section className="admin-form-panel">
+              <div className="admin-panel-header">
+                <h2 className="admin-panel-title">
+                  {editingPersonality ? "Edit Personality" : "New Personality"}
+                </h2>
+                {editingPersonality && (
+                  <button
+                    className="admin-panel-cancel"
+                    onClick={resetPersForm}
+                  >
+                    ✕ Cancel
+                  </button>
+                )}
+              </div>
+
+              {editingPersonality && (
+                <div className="admin-editing-badge">
+                  Editing: <strong>{editingPersonality.name}</strong>
+                </div>
+              )}
+
+              <form onSubmit={handlePersonalitySubmit} className="admin-form">
+                <div className="admin-form-row">
+                  <FormField label="Name">
+                    <input
+                      className="form-input"
+                      placeholder="Full name"
+                      value={persFields.name}
+                      required
+                      onChange={(e) =>
+                        setPersFields((f) => ({ ...f, name: e.target.value }))
+                      }
+                    />
+                  </FormField>
+                  <FormField label="Role">
+                    <select
+                      className="form-input"
+                      value={persFields.role}
+                      onChange={(e) =>
+                        setPersFields((f) => ({ ...f, role: e.target.value }))
+                      }
+                    >
+                      <option value="">— Select a role —</option>
+                      {PERSONALITY_ROLES.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  </FormField>
+                </div>
+                <FormField label="Biography">
+                  <textarea
+                    ref={persTextareaRef}
+                    className="form-input"
+                    rows="4"
+                    placeholder="Write a biography..."
+                    required
+                    value={persFields.biography}
+                    onChange={(e) =>
+                      setPersFields((f) => ({
+                        ...f,
+                        biography: e.target.value,
+                      }))
+                    }
+                  />
+                </FormField>
+                <div className="admin-form-row">
+                  <FormField label="Category">
+                    <select
+                      className="form-input"
+                      value={persFields.category}
+                      onChange={(e) =>
+                        setPersFields((f) => ({
+                          ...f,
+                          category: e.target.value,
+                        }))
+                      }
+                    >
+                      {Object.entries(PERSONALITY_CATEGORIES).map(([v, l]) => (
+                        <option key={v} value={v}>
+                          {l}
+                        </option>
+                      ))}
+                    </select>
+                  </FormField>
+                  <FormField
+                    label="Photo"
+                    hint={
+                      editingPersonality && !persImageFile
+                        ? "Leave empty to keep current"
+                        : ""
+                    }
+                  >
+                    <div className="admin-file-upload">
+                      {persImagePreview && (
+                        <img
+                          src={persImagePreview}
+                          alt="Preview"
+                          className="admin-avatar-preview"
+                        />
+                      )}
+                      <input
+                        ref={persImageRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="form-input"
+                        onChange={handlePersImageChange}
+                      />
+                    </div>
+                  </FormField>
+                </div>
+                <div className="admin-form-row admin-form-row--3">
+                  <FormField label="Twitter">
+                    <input
+                      className="form-input"
+                      placeholder="https://twitter.com/..."
+                      value={persFields.twitter}
+                      onChange={(e) =>
+                        setPersFields((f) => ({
+                          ...f,
+                          twitter: e.target.value,
+                        }))
+                      }
+                    />
+                  </FormField>
+                  <FormField label="LinkedIn">
+                    <input
+                      className="form-input"
+                      placeholder="https://linkedin.com/in/..."
+                      value={persFields.linkedin}
+                      onChange={(e) =>
+                        setPersFields((f) => ({
+                          ...f,
+                          linkedin: e.target.value,
+                        }))
+                      }
+                    />
+                  </FormField>
+                  <FormField label="Website">
+                    <input
+                      className="form-input"
+                      placeholder="https://..."
+                      value={persFields.website}
+                      onChange={(e) =>
+                        setPersFields((f) => ({
+                          ...f,
+                          website: e.target.value,
+                        }))
+                      }
+                    />
+                  </FormField>
+                </div>
+                <div className="admin-form-actions">
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={formLoading}
+                  >
+                    {formLoading
+                      ? "Saving..."
+                      : editingPersonality
+                        ? "Save Changes"
+                        : "Create Personality"}
+                  </button>
+                  {editingPersonality && (
+                    <button
+                      type="button"
+                      className="btn btn-outline"
+                      onClick={resetPersForm}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+            </section>
+
+            {/* List */}
+            <section className="admin-list-panel">
+              <SectionHeader
+                title="All Personalities"
+                count={personalities.length}
+              />
+              {persLoading ? (
+                <div className="admin-loading">Loading...</div>
+              ) : personalities.length === 0 ? (
+                <div className="admin-empty">
+                  No personalities yet. Create your first one.
+                </div>
+              ) : (
+                <div className="admin-list">
+                  {personalities.map((p) => (
+                    <div
+                      key={p.id}
+                      className={`admin-list-item ${editingPersonality?.id === p.id ? "admin-list-item--editing" : ""}`}
+                    >
+                      <div className="admin-list-item-img admin-list-item-img--round">
+                        {p.image ? (
+                          <img src={`${BASE_URL}${p.image}`} alt={p.name} />
+                        ) : (
+                          <div className="admin-list-item-img-placeholder admin-list-item-img-placeholder--round">
+                            {p.name?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="admin-list-item-info">
+                        <p className="admin-list-item-title">{p.name}</p>
+                        <div className="admin-list-item-meta">
+                          {p.role && <span>{p.role}</span>}
+                          <span
+                            className="admin-category-pill"
+                            style={{ background: "#f1f3f4" }}
+                          >
+                            {PERSONALITY_CATEGORIES[p.category] || p.category}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="admin-list-item-actions">
+                        <button
+                          onClick={() => handleEditPersonality(p)}
+                          className="admin-action-btn admin-action-btn--edit"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          >
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDeletePersonality(p.id)}
+                          className="admin-action-btn admin-action-btn--delete"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          >
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                            <path d="M10 11v6M14 11v6" />
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

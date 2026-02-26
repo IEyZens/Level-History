@@ -1,8 +1,10 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 
 export default function EventModal({ event, onClose }) {
   const navigate = useNavigate();
+  const portalTarget = document.getElementById("root") || document.body;
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -19,7 +21,7 @@ export default function EventModal({ event, onClose }) {
     return null;
   }
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>
@@ -43,6 +45,7 @@ export default function EventModal({ event, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    portalTarget,
   );
 }
