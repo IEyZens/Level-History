@@ -37,3 +37,26 @@ export async function getAdminStats() {
     return data;
   }
 }
+
+export async function getAllUsers() {
+  const res = await api.get("/users");
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Error fetching users");
+  return data;
+}
+
+export async function updateUser(id, fields) {
+  const res = await api.patch(`/users/${id}`, fields);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Error updating user");
+  return data;
+}
+
+export async function deleteUser(id) {
+  const res = await api.delete(`/users/${id}`);
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.error || "Error deleting user");
+  }
+  return true;
+}

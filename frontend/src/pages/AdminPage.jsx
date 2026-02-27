@@ -11,6 +11,7 @@ import {
   getPersonalities,
   updatePersonality,
 } from "../api/personalities";
+import { deleteUser, getAllUsers, updateUser } from "../api/users";
 import { useAutoResize } from "../hooks/useAutoResize";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -114,6 +115,19 @@ export default function AdminPage() {
   const [persImagePreview, setPersImagePreview] = useState("");
   const persImageRef = useRef(null);
 
+  // Users
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [userSearch, setUserSearch] = useState("");
+  const [editingUser, setEditingUser] = useState(null);
+  const [userFields, setUserFields] = useState({
+    username: "",
+    email: "",
+    avatar: "",
+    role: "USER",
+  });
+  const [userFormLoading, setUserFormLoading] = useState(false);
+
   const eventTextareaRef = useRef(null);
   const persTextareaRef = useRef(null);
   useAutoResize(eventTextareaRef);
@@ -141,9 +155,20 @@ export default function AdminPage() {
     }
   }
 
+  async function fetchUsers() {
+    try {
+      setUsers(await getAllUsers());
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setUsersLoading(false);
+    }
+  }
+
   useEffect(() => {
     fetchEvents();
     fetchPersonalities();
+    fetchUsers();
   }, []);
 
   function showSuccess(msg) {
@@ -345,6 +370,25 @@ export default function AdminPage() {
                 </svg>
               ),
             },
+            {
+              key: "users",
+              label: "Users",
+              count: users.length,
+              icon: (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                >
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              ),
+            },
           ].map(({ key, label, count, icon }) => (
             <button
               key={key}
@@ -353,6 +397,7 @@ export default function AdminPage() {
                 setActiveTab(key);
                 resetEventForm();
                 resetPersForm();
+                setUserSearch("");
               }}
             >
               <span className="admin-nav-icon">{icon}</span>
@@ -876,6 +921,299 @@ export default function AdminPage() {
             </section>
           </div>
         )}
+        {/* ── Users ────────────────────────────────────────────────────────── */}
+        {activeTab === "users" &&
+          (() => {
+            const filteredUsers = users.filter(
+              (u) =>
+                u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
+                u.email.toLowerCase().includes(userSearch.toLowerCase()),
+            );
+
+            async function handleUserSubmit(e) {
+              e.preventDefault();
+              setUserFormLoading(true);
+              setError("");
+              try {
+                await updateUser(editingUser.id, userFields);
+                showSuccess("User updated successfully.");
+                setEditingUser(null);
+                fetchUsers();
+              } catch (err) {
+                setError(err.message);
+              } finally {
+                setUserFormLoading(false);
+              }
+            }
+
+            return (
+              <div className="admin-content-grid page-fade">
+                {/* Edit form — only visible when editing */}
+                {editingUser && (
+                  <section className="admin-form-panel">
+                    <div className="admin-panel-header">
+                      <h2 className="admin-panel-title">Edit User</h2>
+                      <button
+                        className="admin-panel-cancel"
+                        onClick={() => setEditingUser(null)}
+                      >
+                        ✕ Cancel
+                      </button>
+                    </div>
+                    <div className="admin-editing-badge">
+                      Editing: <strong>{editingUser.username}</strong>
+                    </div>
+                    <form onSubmit={handleUserSubmit} className="admin-form">
+                      <FormField label="Username">
+                        <input
+                          className="form-input"
+                          value={userFields.username}
+                          onChange={(e) =>
+                            setUserFields((f) => ({
+                              ...f,
+                              username: e.target.value,
+                            }))
+                          }
+                        />
+                      </FormField>
+                      <FormField label="Email">
+                        <input
+                          type="email"
+                          className="form-input"
+                          value={userFields.email}
+                          onChange={(e) =>
+                            setUserFields((f) => ({
+                              ...f,
+                              email: e.target.value,
+                            }))
+                          }
+                        />
+                      </FormField>
+                      <FormField
+                        label="Avatar URL"
+                        hint="Paste a direct image URL"
+                      >
+                        <input
+                          className="form-input"
+                          placeholder="https://..."
+                          value={userFields.avatar}
+                          onChange={(e) =>
+                            setUserFields((f) => ({
+                              ...f,
+                              avatar: e.target.value,
+                            }))
+                          }
+                        />
+                        {userFields.avatar && (
+                          <img
+                            src={userFields.avatar}
+                            alt="Preview"
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              marginTop: "0.5rem",
+                              border: "1.5px solid var(--color-border)",
+                            }}
+                            onError={(e) => (e.target.style.display = "none")}
+                          />
+                        )}
+                      </FormField>
+                      <FormField label="Role">
+                        <select
+                          className="form-input"
+                          value={userFields.role}
+                          onChange={(e) =>
+                            setUserFields((f) => ({
+                              ...f,
+                              role: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="USER">User</option>
+                          <option value="ADMIN">Admin</option>
+                        </select>
+                      </FormField>
+                      <div className="admin-form-actions">
+                        <button
+                          type="submit"
+                          className="btn btn-primary"
+                          disabled={userFormLoading}
+                        >
+                          {userFormLoading ? "Saving..." : "Save Changes"}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline"
+                          onClick={() => setEditingUser(null)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </section>
+                )}
+
+                {/* List */}
+                <section
+                  className="admin-list-panel"
+                  style={{ gridColumn: editingUser ? "auto" : "1 / -1" }}
+                >
+                  <div className="admin-section-header">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.75rem",
+                        flex: 1,
+                      }}
+                    >
+                      <h2 className="admin-section-title">All Users</h2>
+                      <span className="admin-count-badge">{users.length}</span>
+                    </div>
+                    <input
+                      className="form-input"
+                      style={{
+                        width: "220px",
+                        padding: "0.42rem 0.8rem",
+                        fontSize: "0.85rem",
+                      }}
+                      placeholder="Search by name or email..."
+                      value={userSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
+                    />
+                  </div>
+                  {usersLoading ? (
+                    <div className="admin-loading">Loading...</div>
+                  ) : filteredUsers.length === 0 ? (
+                    <div className="admin-empty">No users found.</div>
+                  ) : (
+                    <div className="admin-list">
+                      {filteredUsers.map((u) => (
+                        <div
+                          key={u.id}
+                          className={`admin-list-item ${editingUser?.id === u.id ? "admin-list-item--editing" : ""}`}
+                        >
+                          <div className="admin-list-item-img admin-list-item-img--round">
+                            {u.avatar ? (
+                              <img src={u.avatar} alt={u.username} />
+                            ) : (
+                              <div className="admin-list-item-img-placeholder admin-list-item-img-placeholder--round">
+                                {u.username?.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="admin-list-item-info">
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                              }}
+                            >
+                              <p className="admin-list-item-title">
+                                {u.username}
+                              </p>
+                              <span
+                                className="admin-role-badge"
+                                data-role={u.role}
+                              >
+                                {u.role === "ADMIN" ? "Admin" : "User"}
+                              </span>
+                            </div>
+                            <div className="admin-list-item-meta">
+                              <span>{u.email}</span>
+                              <span>·</span>
+                              <span>{u._count?.comments ?? 0} comments</span>
+                              <span>·</span>
+                              <span>{u._count?.likes ?? 0} likes</span>
+                              <span>·</span>
+                              <span>
+                                Joined{" "}
+                                {new Date(u.createdAt).toLocaleDateString(
+                                  "en-GB",
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  },
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="admin-list-item-actions">
+                            <button
+                              onClick={() => {
+                                setEditingUser(u);
+                                setUserFields({
+                                  username: u.username,
+                                  email: u.email,
+                                  avatar: u.avatar || "",
+                                  role: u.role,
+                                });
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              className="admin-action-btn admin-action-btn--edit"
+                            >
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                              >
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (
+                                  !window.confirm(
+                                    `Delete user "${u.username}"? This is irreversible.`,
+                                  )
+                                )
+                                  return;
+                                try {
+                                  await deleteUser(u.id);
+                                  fetchUsers();
+                                  showSuccess("User deleted.");
+                                } catch (err) {
+                                  setError(err.message);
+                                }
+                              }}
+                              className="admin-action-btn admin-action-btn--delete"
+                              disabled={u.role === "ADMIN"}
+                              title={
+                                u.role === "ADMIN"
+                                  ? "Cannot delete an admin"
+                                  : "Delete user"
+                              }
+                              style={{ opacity: u.role === "ADMIN" ? 0.3 : 1 }}
+                            >
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                              >
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                <path d="M10 11v6M14 11v6" />
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              </div>
+            );
+          })()}
       </main>
     </div>
   );

@@ -3,7 +3,7 @@ import prisma from "../lib/prisma.js";
 
 export const getMe = async (req, res) => {
   try {
-    const userId = req.userId; // ✅ pas req.user.id
+    const userId = req.userId;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -102,6 +102,69 @@ export const getAdminStats = async (req, res) => {
     ]);
 
     return res.json({ users, events, comments, likes });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        avatar: true,
+        createdAt: true,
+        _count: { select: { comments: true, likes: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, email, avatar, role } = req.body;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(id) },
+      data: {
+        ...(username && { username }),
+        ...(email && { email }),
+        ...(avatar !== undefined && { avatar }),
+        ...(role && { role }),
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        avatar: true,
+        createdAt: true,
+        _count: { select: { comments: true, likes: true } },
+      },
+    });
+
+    return res.json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.user.delete({ where: { id: parseInt(id) } });
+    return res.json({ message: "User deleted" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
