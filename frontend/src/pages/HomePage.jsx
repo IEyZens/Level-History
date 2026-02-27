@@ -16,8 +16,8 @@ export default function HomePage() {
       try {
         const data = await getEvents();
         setEvents(data);
-      } catch (error) {
-        setError(error.message);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -27,9 +27,14 @@ export default function HomePage() {
 
   return (
     <div className="page-fade">
-      {/* Hero */}
+      {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section className="home-hero">
-        <h1>Explore Video Game History</h1>
+        <span className="section-label">Level History</span>
+        <h1>
+          Explore Video Game
+          <br />
+          <em>History</em>
+        </h1>
         <p>
           Discover the events that shaped the industry. From the first games to
           revolutionary consoles, navigate through time and understand how it
@@ -40,7 +45,7 @@ export default function HomePage() {
             className="btn btn-primary"
             onClick={() => navigate("/events")}
           >
-            Explore
+            Explore the Timeline
           </button>
           <button
             className="btn btn-outline-dark"
@@ -59,7 +64,7 @@ export default function HomePage() {
         <div className="home-banner-placeholder" />
       </div>
 
-      {/* Three Ways to Learn */}
+      {/* ── Three Ways to Learn ──────────────────────────────────────────────── */}
       <section className="section" id="learn-more">
         <div className="section-inner">
           <span className="section-label">Discover</span>
@@ -114,7 +119,7 @@ export default function HomePage() {
                 className="learn-card-link"
                 onClick={(e) => e.stopPropagation()}
               >
-                Fiche
+                Explore
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -153,7 +158,7 @@ export default function HomePage() {
                 className="learn-card-link"
                 onClick={(e) => e.stopPropagation()}
               >
-                Fiche
+                Explore
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -169,24 +174,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Timeline */}
-      <section className="section">
+      {/* ── Timeline Preview ─────────────────────────────────────────────────── */}
+      <section className="section" style={{ paddingTop: 0 }}>
         <div className="section-inner">
           <span className="section-label">History</span>
           <h2 className="home-learn-title">An Interactive Industry Timeline</h2>
           <p className="home-learn-subtitle">
-            Click on each point to see the details, read other enthusiasts'
-            comments and share your own views.
+            Click on each point to see the details, read comments and share your
+            views.
           </p>
           <div className="home-timeline-actions">
             <button
               className="btn btn-outline-dark"
               onClick={() => navigate("/events")}
             >
-              View all
+              View all events
             </button>
             <Link to="/events" className="timeline-preview-link">
-              Timeline
+              Full timeline
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -198,7 +203,16 @@ export default function HomePage() {
               </svg>
             </Link>
           </div>
-          {loading && <p>Loading...</p>}
+          {loading && (
+            <p
+              style={{
+                color: "var(--color-text-subtle)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              Loading...
+            </p>
+          )}
           {error && <div className="alert alert-error">{error}</div>}
           {!loading && !error && events.length > 0 && (
             <TimelinePreview events={events} />
@@ -206,8 +220,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Community */}
+      {/* ── Community ────────────────────────────────────────────────────────── */}
       <section className="home-community">
+        <span className="section-label">Community</span>
         <h2>Join the Community</h2>
         <p>
           Create an account to comment on events, share your views and interact
@@ -239,8 +254,8 @@ export default function HomePage() {
             </button>
           )}
         </div>
-        <div className="home-community-image" />
       </section>
+      <div className="home-community-image" />
     </div>
   );
 }

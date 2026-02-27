@@ -134,7 +134,7 @@ export default function Navbar() {
                 <img src={user.avatar} alt={user.username} />
               ) : (
                 <div className="navbar-avatar-placeholder">
-                  {user.username.charAt(0).toUpperCase()}
+                  {user.username?.charAt(0).toUpperCase() ?? "?"}
                 </div>
               )}
             </Link>

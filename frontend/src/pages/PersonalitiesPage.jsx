@@ -5,6 +5,92 @@ import Accordion from "../components/Accordion";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const CATEGORY_LABELS = {
+  ALL: "All",
+  VISIONARY: "Visionaries",
+  BUILDER: "Builders",
+  EXECUTIVE: "Executives",
+};
+
+const CATEGORY_SUBLABELS = {
+  VISIONARY: "Creators",
+  BUILDER: "Pioneers",
+  EXECUTIVE: "Executives",
+};
+
+const CATEGORY_DESCRIPTIONS = {
+  VISIONARY: "Those who set the rules and created the worlds.",
+  BUILDER: "The engineers who made the impossible possible.",
+  EXECUTIVE: "Those who built the empires and led the studios.",
+};
+
+const CATEGORY_ICONS = {
+  VISIONARY: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2L2 7l10 5 10-5-10-5z" />
+      <path d="M2 17l10 5 10-5" />
+      <path d="M2 12l10 5 10-5" />
+    </svg>
+  ),
+  BUILDER: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </svg>
+  ),
+  EXECUTIVE: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  ),
+};
+
+const LEGENDS_CONTENT = {
+  ALL: {
+    title: "All Personalities",
+    desc: "Discover all the figures who shaped the video game industry.",
+  },
+  VISIONARY: {
+    title: "The Visionaries",
+    desc: "Those who set the rules and created entire worlds from imagination.",
+  },
+  BUILDER: {
+    title: "The Builders",
+    desc: "Meet those who laid the foundations of everything young people love today.",
+  },
+  EXECUTIVE: {
+    title: "The Executives",
+    desc: "Those who built the empires and led the studios to global success.",
+  },
+};
+
+const FAQ_ITEMS = [
+  {
+    question: "Who are the personalities?",
+    answer: "Figures who shaped the video game industry.",
+  },
+  {
+    question: "How were they selected?",
+    answer: "Chosen for their impact as creators, innovators or executives.",
+  },
+  {
+    question: "Can I suggest someone?",
+    answer: "Yes, contact us with the person and their contributions.",
+  },
+  {
+    question: "Are there female personalities?",
+    answer: "Yes, women played a key role in the industry.",
+  },
+  {
+    question: "What do the categories mean?",
+    answer:
+      "Visionaries created worlds, Builders built the tech, Executives led the studios.",
+  },
+];
+
 export default function PersonalitiesPage() {
   const [personalities, setPersonalities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,107 +98,6 @@ export default function PersonalitiesPage() {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [expandedIds, setExpandedIds] = useState(new Set());
   const navigate = useNavigate();
-
-  const CATEGORY_LABELS = {
-    ALL: "ALL",
-    VISIONARY: "Les artisans des mondes virtuels",
-    BUILDER: "Pionniers technologiques",
-    EXECUTIVE: "Dirigeants et visionnaires",
-  };
-
-  const CATEGORY_ICONS = {
-    VISIONARY: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-        <path d="M2 17l10 5 10-5" />
-        <path d="M2 12l10 5 10-5" />
-      </svg>
-    ),
-    BUILDER: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <rect x="2" y="3" width="20" height="14" rx="2" />
-        <path d="M8 21h8M12 17v4" />
-      </svg>
-    ),
-    EXECUTIVE: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
-  };
-
-  const CATEGORY_DESCRIPTIONS = {
-    VISIONARY: "Those who set the rules and created the worlds.",
-    BUILDER: "The engineers who made the impossible possible.",
-    EXECUTIVE: "Those who built the empires and led the studios.",
-  };
-
-  const CATEGORY_SUBLABELS = {
-    VISIONARY: "Creators",
-    BUILDER: "Pioneers",
-    EXECUTIVE: "Executives",
-  };
-
-  const LEGENDS_CONTENT = {
-    ALL: {
-      title: "All Personalities",
-      desc: "Discover all the figures who shaped the video game industry.",
-    },
-    VISIONARY: {
-      title: "The Visionaries",
-      desc: "Those who set the rules and created entire worlds from imagination.",
-    },
-    BUILDER: {
-      title: "The Builders",
-      desc: "Meet those who laid the foundations of everything young people love today.",
-    },
-    EXECUTIVE: {
-      title: "The Executives",
-      desc: "Those who built the empires and led the studios to global success.",
-    },
-  };
-
-  const FAQ_ITEMS = [
-    {
-      question: "Who are the personalities?",
-      answer: "Figures who shaped the video game industry.",
-    },
-    {
-      question: "How were they selected?",
-      answer: "Chosen for their impact as creators, innovators or executives.",
-    },
-    {
-      question: "Can I suggest someone?",
-      answer: "Yes, contact us with the person and their contributions.",
-    },
-    {
-      question: "Are there female personalities?",
-      answer: "Yes, women played a key role in the industry.",
-    },
-    {
-      question: "What do the categories mean?",
-      answer:
-        "Visionaries created worlds, Builders built the tech, Executives led the studios.",
-    },
-  ];
 
   const filteredPersonalities =
     activeCategory === "ALL"
@@ -122,10 +107,9 @@ export default function PersonalitiesPage() {
   useEffect(() => {
     async function fetchPersonalities() {
       try {
-        const data = await getPersonalities();
-        setPersonalities(data);
-      } catch (error) {
-        setError(error.message);
+        setPersonalities(await getPersonalities());
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -141,19 +125,22 @@ export default function PersonalitiesPage() {
     });
   }
 
+  const legend = LEGENDS_CONTENT[activeCategory];
+
   return (
     <div className="page-fade">
-      {/* Hero */}
+      {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section className="personalities-hero">
-        <h1>Les visionnaires du jeu</h1>
+        <span className="section-label">Personalities</span>
+        <h1>The Visionaries of Gaming</h1>
         <p>
-          Explorez les figures qui ont façonné l'industrie du jeu vidéo et
-          transformé le divertissement numérique à jamais.
+          Explore the figures who shaped the video game industry and transformed
+          digital entertainment forever.
         </p>
       </section>
 
-      {/* Categories */}
-      <section className="section">
+      {/* ── Categories ───────────────────────────────────────────────────────── */}
+      <section className="section" style={{ paddingTop: "2rem" }}>
         <div className="section-inner">
           <span className="section-label">Categories</span>
           <h2 className="personalities-section-title">
@@ -162,10 +149,11 @@ export default function PersonalitiesPage() {
           <p className="personalities-section-desc">
             Discover the different branches of this industry.
           </p>
+
           <div className="personalities-categories-grid">
             {Object.entries(CATEGORY_LABELS)
-              .filter(([category]) => category !== "ALL")
-              .map(([category, label], index) => (
+              .filter(([cat]) => cat !== "ALL")
+              .map(([category], index) => (
                 <div
                   key={category}
                   onClick={() =>
@@ -183,7 +171,9 @@ export default function PersonalitiesPage() {
                       {CATEGORY_ICONS[category]}
                     </div>
                   </div>
-                  <h3 className="personalities-category-title">{label}</h3>
+                  <h3 className="personalities-category-title">
+                    {CATEGORY_LABELS[category]}
+                  </h3>
                   <p className="personalities-category-desc">
                     {CATEGORY_DESCRIPTIONS[category]}
                   </p>
@@ -197,7 +187,7 @@ export default function PersonalitiesPage() {
                       </button>
                     ) : (
                       <span className="personalities-category-arrow">
-                        Fiche ›
+                        View ›
                       </span>
                     )}
                   </div>
@@ -207,41 +197,61 @@ export default function PersonalitiesPage() {
         </div>
       </section>
 
-      {/* Personalities list */}
-      <section className="section">
+      {/* ── Personalities List ───────────────────────────────────────────────── */}
+      <section className="section" style={{ paddingTop: 0 }}>
         <div className="section-inner" style={{ textAlign: "left" }}>
           <span className="section-label" style={{ textAlign: "left" }}>
             Legends
           </span>
           <div className="personalities-legends-layout">
+            {/* Left sticky */}
             <div className="personalities-legends-left">
-              <h2 className="personalities-section-title">The Builders</h2>
-              <p className="personalities-section-desc">
-                Meet those who laid the foundations of everything young people
-                love today.
-              </p>
-              <button
-                className="btn btn-outline-dark"
-                style={{ width: "fit-content" }}
-              >
-                Learn more
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  style={{ width: "14px", height: "14px" }}
+              <h2 className="personalities-section-title">{legend.title}</h2>
+              <p className="personalities-section-desc">{legend.desc}</p>
+              {activeCategory !== "ALL" && (
+                <button
+                  className="btn btn-outline-dark"
+                  style={{ width: "fit-content", marginTop: "0.5rem" }}
+                  onClick={() => setActiveCategory("ALL")}
                 >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </button>
+                  View all
+                </button>
+              )}
+              <div className="personalities-nav-pills">
+                {Object.entries(CATEGORY_LABELS).map(([cat, label]) => (
+                  <button
+                    key={cat}
+                    className={`personalities-nav-pill ${activeCategory === cat ? "personalities-nav-pill--active" : ""}`}
+                    onClick={() => setActiveCategory(cat)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {/* Right list */}
             <div className="personalities-legends-right">
-              {loading && <p>Loading...</p>}
+              {loading && (
+                <p
+                  style={{
+                    color: "var(--color-text-subtle)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  Loading...
+                </p>
+              )}
               {error && <div className="alert alert-error">{error}</div>}
               {!loading && !error && filteredPersonalities.length === 0 && (
-                <p>No personalities found.</p>
+                <p
+                  style={{
+                    color: "var(--color-text-subtle)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  No personalities in this category.
+                </p>
               )}
               {!loading && !error && filteredPersonalities.length > 0 && (
                 <div className="personalities-list">
@@ -249,7 +259,6 @@ export default function PersonalitiesPage() {
                     const isExpanded = expandedIds.has(personality.id);
                     const bio = personality.biography ?? "";
                     const isLong = bio.length > 120;
-
                     return (
                       <div key={personality.id} className="personality-card">
                         <div className="personality-img-wrapper">
@@ -361,9 +370,10 @@ export default function PersonalitiesPage() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
       <section className="section">
         <div className="section-inner">
+          <span className="section-label">FAQ</span>
           <h2 className="personalities-section-title">Questions</h2>
           <p className="personalities-section-desc">
             Find answers to the most common questions about our personalities.
@@ -372,13 +382,19 @@ export default function PersonalitiesPage() {
           <div className="faq-cta">
             <h3>Any remaining questions?</h3>
             <p>Contact us directly to find out more.</p>
-            <button className="btn btn-outline-dark">Write</button>
+            <button
+              className="btn btn-outline-dark"
+              onClick={() => navigate("/contact")}
+            >
+              Write to us
+            </button>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ── CTA ──────────────────────────────────────────────────────────────── */}
       <section className="personalities-cta">
+        <span className="section-label">Timeline</span>
         <h2>See Their Legacy in Action</h2>
         <p>
           Every personality left a mark on the timeline. Explore how their
@@ -389,7 +405,7 @@ export default function PersonalitiesPage() {
             className="btn btn-primary"
             onClick={() => navigate("/events")}
           >
-            Explore
+            Explore Timeline
           </button>
           <button
             className="btn btn-outline-dark"

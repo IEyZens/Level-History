@@ -4,6 +4,44 @@ import { getEvents } from "../api/events";
 import Accordion from "../components/Accordion";
 import Timeline from "../components/Timeline";
 
+const CATEGORY_LABELS = {
+  ALL: "All categories",
+  CONSOLE_RELEASE: "Console",
+  GAME_RELEASE: "Games",
+  COMPANY_FOUNDING: "Companies",
+  TECHNOLOGY: "Technology",
+  CULTURAL_IMPACT: "Culture",
+  OTHER: "Other",
+};
+
+const FAQ_ITEMS = [
+  {
+    question: "How do I filter the timeline?",
+    answer:
+      "Use the filter buttons to select by year, console or type of innovation. The timeline updates instantly.",
+  },
+  {
+    question: "Can I add my own events?",
+    answer:
+      "Logged-in members can submit events to enrich the timeline. Each contribution is verified before publication.",
+  },
+  {
+    question: "Is the data accurate?",
+    answer:
+      "Each event comes from reliable and documented sources. Our community ensures the accuracy of information.",
+  },
+  {
+    question: "Can I comment on events?",
+    answer:
+      "Yes, logged-in members can share their views and link key milestones. Comments create a dialogue around each important moment.",
+  },
+  {
+    question: "What period does the timeline cover?",
+    answer:
+      "We document the industry from its debut to today. From the first arcade games to the latest generation consoles.",
+  },
+];
+
 export default function EventsPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,52 +52,14 @@ export default function EventsPage() {
   const filterRef = useRef(null);
   const navigate = useNavigate();
 
-  const CATEGORY_LABELS = {
-    ALL: "ALL",
-    CONSOLE_RELEASE: "Console",
-    GAME_RELEASE: "Games",
-    COMPANY_FOUNDING: "Companies",
-    TECHNOLOGY: "Technology",
-    CULTURAL_IMPACT: "Culture",
-    OTHER: "Other",
-  };
-
-  const FAQ_ITEMS = [
-    {
-      question: "How do I filter the timeline?",
-      answer:
-        "Use the filter buttons to select by year, console or type of innovation. The timeline updates instantly.",
-    },
-    {
-      question: "Can I add my own events?",
-      answer:
-        "Logged-in members can submit events to enrich the timeline with their knowledge. Each contribution is verified before publication.",
-    },
-    {
-      question: "Is the data accurate?",
-      answer:
-        "Each event comes from reliable and documented sources. Our community of enthusiasts ensures the accuracy of information.",
-    },
-    {
-      question: "Can I comment on events?",
-      answer:
-        "Yes, logged-in members can share their views and link the key milestones. Comments create a dialogue around each important moment.",
-    },
-    {
-      question: "What period does the timeline cover?",
-      answer:
-        "We document the industry from its debut to today. From the first arcade games to the latest generation consoles.",
-    },
-  ];
-
   useEffect(() => {
     async function fetchEvents() {
       try {
         const data = await getEvents();
         setEvents(data);
         setFilteredEvents(data);
-      } catch (error) {
-        setError(error.message);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -69,52 +69,52 @@ export default function EventsPage() {
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (filterRef.current && !filterRef.current.contains(e.target)) {
+      if (filterRef.current && !filterRef.current.contains(e.target))
         setFilterOpen(false);
-      }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   function handleFilter(category) {
     setActiveCategory(category);
-    if (category === "ALL") {
-      setFilteredEvents(events);
-    } else {
-      setFilteredEvents(events.filter((e) => e.category === category));
-    }
+    setFilteredEvents(
+      category === "ALL"
+        ? events
+        : events.filter((e) => e.category === category),
+    );
+    setFilterOpen(false);
   }
 
   return (
     <div className="page-fade">
-      {/* Hero */}
+      {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section className="events-hero">
+        <span className="section-label">Timeline</span>
         <h1>Navigate Through Time</h1>
         <p>
           Discover how the video game industry was built, one event at a time.
         </p>
       </section>
 
-      {/* Timeline section */}
-      <section className="section">
+      {/* ── Timeline ─────────────────────────────────────────────────────────── */}
+      <section className="section" style={{ paddingTop: "2rem" }}>
         <div className="section-inner">
-          <span className="section-label">Timeline</span>
+          <span className="section-label">Milestones</span>
           <h2 className="events-section-title">
             The Moments That Shaped Video Games
           </h2>
           <p className="events-section-desc">
-            Explore the key milestones of the industry. Filter by year, console
-            or innovation.
+            Explore the key milestones of the industry. Filter by category.
           </p>
+
           <div className="events-filter-row">
             <div className="events-filter-dropdown" ref={filterRef}>
               <button
                 className="btn btn-outline-dark events-filter-btn"
                 onClick={() => setFilterOpen(!filterOpen)}
               >
-                Filter
+                {CATEGORY_LABELS[activeCategory]}
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -127,14 +127,11 @@ export default function EventsPage() {
               </button>
               {filterOpen && (
                 <div className="events-filter-menu">
-                  {Object.entries(CATEGORY_LABELS).map(([category, label]) => (
+                  {Object.entries(CATEGORY_LABELS).map(([cat, label]) => (
                     <button
-                      key={category}
-                      onClick={() => {
-                        handleFilter(category);
-                        setFilterOpen(false);
-                      }}
-                      className={`events-filter-item ${activeCategory === category ? "events-filter-item--active" : ""}`}
+                      key={cat}
+                      onClick={() => handleFilter(cat)}
+                      className={`events-filter-item ${activeCategory === cat ? "events-filter-item--active" : ""}`}
                     >
                       {label}
                     </button>
@@ -142,23 +139,41 @@ export default function EventsPage() {
                 </div>
               )}
             </div>
-            <span className="events-details-link">
-              Details
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              >
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
+
+            <span
+              style={{
+                fontSize: "0.82rem",
+                color: "var(--color-text-subtle)",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              {filteredEvents.length} event
+              {filteredEvents.length !== 1 ? "s" : ""}
             </span>
           </div>
+
           <div className="timeline-container">
-            {loading && <p>Loading...</p>}
+            {loading && (
+              <p
+                style={{
+                  color: "var(--color-text-subtle)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                Loading...
+              </p>
+            )}
             {error && <div className="alert alert-error">{error}</div>}
-            {filteredEvents.length === 0 && !loading && <p>No events found.</p>}
+            {!loading && !error && filteredEvents.length === 0 && (
+              <p
+                style={{
+                  color: "var(--color-text-subtle)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                No events in this category.
+              </p>
+            )}
             {!loading && !error && filteredEvents.length > 0 && (
               <Timeline events={filteredEvents} />
             )}
@@ -166,9 +181,10 @@ export default function EventsPage() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
       <section className="section">
-        <div className="section-inner events-section-inner">
+        <div className="section-inner">
+          <span className="section-label">FAQ</span>
           <h2 className="events-section-title">Questions</h2>
           <p className="events-section-desc">
             Find answers to common questions about navigation and exploration.
@@ -177,13 +193,19 @@ export default function EventsPage() {
           <div className="faq-cta">
             <h3>Need more help?</h3>
             <p>Contact our team for any specific question.</p>
-            <button className="btn btn-outline-dark">Write to us</button>
+            <button
+              className="btn btn-outline-dark"
+              onClick={() => navigate("/contact")}
+            >
+              Write to us
+            </button>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ── CTA ──────────────────────────────────────────────────────────────── */}
       <section className="events-cta">
+        <span className="section-label">Community</span>
         <h2>Share Your Story</h2>
         <p>Join our community and enrich the timeline with your knowledge.</p>
         <div className="events-cta-buttons">

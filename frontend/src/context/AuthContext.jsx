@@ -27,7 +27,7 @@ function AuthProvider({ children }) {
 
         if (res.ok) {
           const data = await res.json();
-          setUser(data.data);
+          setUser(data.data?.user || data.data || data.user || data);
         }
       } catch (error) {
         console.error("Auth check failed:", error);
