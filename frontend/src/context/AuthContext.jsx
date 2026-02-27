@@ -44,8 +44,45 @@ function AuthProvider({ children }) {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
+  const toggleTheme = (event) => {
+    const newTheme = theme === "light" ? "dark" : "light";
+
+    // Fallback sans animation
+    if (
+      !document.startViewTransition ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setTheme(newTheme);
+      return;
+    }
+
+    const { top, left, width, height } =
+      event.currentTarget.getBoundingClientRect();
+    const x = left + width / 2;
+    const y = top + height / 2;
+    const right = window.innerWidth - x;
+    const bottom = window.innerHeight - y;
+    const radius = Math.hypot(Math.max(x, right), Math.max(y, bottom));
+
+    const transition = document.startViewTransition(() => {
+      setTheme(newTheme);
+    });
+
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${radius}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 700,
+          easing: "ease-in-out",
+          pseudoElement: "::view-transition-new(root)",
+        },
+      );
+    });
   };
 
   const clearUser = () => setUser(null);

@@ -91,11 +91,7 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-auth">
-        <button
-          onClick={toggleTheme}
-          className="navbar-theme-btn"
-          title="Toggle theme"
-        >
+        <button onClick={(e) => toggleTheme(e)} className="navbar-theme-btn">
           {theme === "light" ? (
             <svg
               viewBox="0 0 24 24"
