@@ -859,14 +859,24 @@ export default function AdminPage() {
                       key={p.id}
                       className={`admin-list-item ${editingPersonality?.id === p.id ? "admin-list-item--editing" : ""}`}
                     >
-                      <div className="admin-list-item-img admin-list-item-img--round">
+                      <div className="personality-img-wrapper">
                         {p.image ? (
-                          <img src={`${BASE_URL}${p.image}`} alt={p.name} />
-                        ) : (
-                          <div className="admin-list-item-img-placeholder admin-list-item-img-placeholder--round">
-                            {p.name?.charAt(0).toUpperCase()}
-                          </div>
-                        )}
+                          <img
+                            src={`${BASE_URL}${p.image}`}
+                            alt={p.name}
+                            className="personality-img"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "flex";
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className="personality-img-placeholder"
+                          style={{ display: p.image ? "none" : "flex" }}
+                        >
+                          {p.name?.charAt(0).toUpperCase()}
+                        </div>
                       </div>
                       <div className="admin-list-item-info">
                         <p className="admin-list-item-title">{p.name}</p>
