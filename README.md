@@ -575,7 +575,7 @@ npm run build
 
 ## 👤 Author
 
-Developed by **[Your Name]** as part of Holberton School's full-stack curriculum.
+Developed by **Thomas** as part of Holberton School's full-stack curriculum.
 
 ---
 
