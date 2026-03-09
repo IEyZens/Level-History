@@ -1,0 +1,229 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   BUTTONS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.58rem 1.35rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: all var(--transition);
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: var(--color-text);
+  color: var(--color-bg);
+  border: 1px solid var(--color-text);
+}
+.btn-primary:hover {
+  opacity: 0.82;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+.btn-outline:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+.btn-outline-dark {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border-strong);
+}
+.btn-outline-dark:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.btn-outline-white {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.52rem 1.15rem;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: white;
+  background: transparent;
+  transition: all var(--transition);
+}
+.btn-outline-white:hover {
+  background: white;
+  color: #161614;
+  border-color: white;
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  color: white;
+  border: 1px solid var(--color-danger);
+}
+.btn-danger:hover {
+  opacity: 0.82;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   FORMS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.01em;
+  font-family: var(--font-body);
+}
+
+.form-input {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.62rem 0.9rem;
+  color: var(--color-text);
+  width: 100%;
+  font-size: 0.9rem;
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+  font-family: var(--font-body);
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-border-strong);
+  box-shadow: 0 0 0 3px rgba(22, 22, 20, 0.06);
+}
+[data-theme="dark"] .form-input:focus {
+  box-shadow: 0 0 0 3px rgba(236, 234, 230, 0.07);
+}
+.form-input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.form-input[type="file"] {
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+select.form-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9895' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.2rem;
+}
+
+.form-error {
+  font-size: 0.8rem;
+  color: var(--color-danger);
+  font-family: var(--font-body);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ALERTS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  border: 1px solid transparent;
+}
+.alert-success {
+  background: var(--color-success-bg);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.alert-error {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CARD (générique)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow var(--transition-med),
+    transform var(--transition-med);
+}
+.card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LIKE BUTTON
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+  font-family: var(--font-body);
+}
+.like-btn:hover {
+  border-color: var(--color-border-strong);
+}
+.like-btn svg {
+  width: 18px;
+  height: 18px;
+  transition:
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    fill 0.18s ease;
+}
+.like-btn:not(:disabled):hover svg {
+  transform: scale(1.2);
+}
+.like-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.like-btn span {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
