@@ -4,6 +4,7 @@ import { getEvents } from "../api/events";
 import Accordion from "../components/Accordion";
 import Timeline from "../components/Timeline";
 
+/** Labels affichés dans le dropdown de filtre par catégorie */
 const CATEGORY_LABELS = {
   ALL: "All categories",
   CONSOLE_RELEASE: "Console",
@@ -14,6 +15,7 @@ const CATEGORY_LABELS = {
   OTHER: "Other",
 };
 
+/** Questions/réponses de la section FAQ */
 const FAQ_ITEMS = [
   {
     question: "How do I filter the timeline?",
@@ -42,6 +44,10 @@ const FAQ_ITEMS = [
   },
 ];
 
+/**
+ * Page de la timeline des événements
+ * Affiche les événements filtrables par catégorie, une FAQ et un CTA communautaire
+ */
 export default function EventsPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +55,11 @@ export default function EventsPage() {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [filterOpen, setFilterOpen] = useState(false);
-  const filterRef = useRef(null);
+
+  const filterRef = useRef(null); // Référence pour détecter les clics en dehors du dropdown
   const navigate = useNavigate();
 
+  // Charge tous les événements au montage
   useEffect(() => {
     async function fetchEvents() {
       try {
@@ -67,6 +75,7 @@ export default function EventsPage() {
     fetchEvents();
   }, []);
 
+  // Ferme le dropdown si l'utilisateur clique en dehors
   useEffect(() => {
     function handleClickOutside(e) {
       if (filterRef.current && !filterRef.current.contains(e.target))
@@ -76,6 +85,10 @@ export default function EventsPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  /**
+   * Filtre les événements par catégorie et ferme le dropdown
+   * "ALL" réaffiche tous les événements
+   */
   function handleFilter(category) {
     setActiveCategory(category);
     setFilteredEvents(
@@ -97,7 +110,7 @@ export default function EventsPage() {
         </p>
       </section>
 
-      {/* ── Timeline ─────────────────────────────────────────────────────────── */}
+      {/* ── Timeline avec filtre par catégorie ───────────────────────────────── */}
       <section className="section" style={{ paddingTop: "2rem" }}>
         <div className="section-inner">
           <span className="section-label">Milestones</span>
@@ -109,6 +122,7 @@ export default function EventsPage() {
           </p>
 
           <div className="events-filter-row">
+            {/* Dropdown de filtre par catégorie */}
             <div className="events-filter-dropdown" ref={filterRef}>
               <button
                 className="btn btn-outline-dark events-filter-btn"
@@ -140,6 +154,7 @@ export default function EventsPage() {
               )}
             </div>
 
+            {/* Compteur d'événements filtrés */}
             <span
               style={{
                 fontSize: "0.82rem",
@@ -203,7 +218,7 @@ export default function EventsPage() {
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────────────────────── */}
+      {/* ── CTA communautaire ────────────────────────────────────────────────── */}
       <section className="events-cta">
         <span className="section-label">Community</span>
         <h2>Share Your Story</h2>

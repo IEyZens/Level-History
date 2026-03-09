@@ -7,16 +7,18 @@ import {
 } from "../api/personalities";
 import { useAutoResize } from "../hooks/useAutoResize";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Constantes ───────────────────────────────────────────────────────────────
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+/** Labels affichés pour chaque catégorie de personnalité */
 const PERSONALITY_CATEGORIES = {
   VISIONARY: "Visionary",
   BUILDER: "Builder",
   EXECUTIVE: "Executive",
 };
 
+/** Rôles disponibles dans le select du formulaire */
 const PERSONALITY_ROLES = [
   "Game Designer",
   "Programmer",
@@ -30,6 +32,7 @@ const PERSONALITY_ROLES = [
   "Other",
 ];
 
+/** État initial du formulaire */
 const EMPTY_FORM = {
   name: "",
   role: "",
@@ -40,8 +43,12 @@ const EMPTY_FORM = {
   website: "",
 };
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Sous-composants ──────────────────────────────────────────────────────────
 
+/**
+ * Conteneur de champ de formulaire avec label et hint optionnel
+ * @param {{ label: string, hint?: string, children: React.ReactNode }} props
+ */
 function FormField({ label, hint, children }) {
   return (
     <div className="form-group">
@@ -52,25 +59,31 @@ function FormField({ label, hint, children }) {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Composant principal ──────────────────────────────────────────────────────
 
+/**
+ * Panneau d'administration des personnalités — CRUD complet avec upload d'image
+ * Affiche un formulaire de création/édition et la liste de toutes les personnalités
+ * @param {{ onCountChange?: Function }} props - Callback appelé avec le nombre de personnalités
+ */
 export default function AdminPersonalities({ onCountChange }) {
   const [personalities, setPersonalities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [editing, setEditing] = useState(null);
+  const [editing, setEditing] = useState(null); // Personnalité en cours d'édition ou null
   const [fields, setFields] = useState(EMPTY_FORM);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
   const textareaRef = useRef(null);
-  const imageRef = useRef(null);
+  const imageRef = useRef(null); // Référence pour réinitialiser l'input file
   useAutoResize(textareaRef);
 
-  // ─── Data ──────────────────────────────────────────────────────────────────
+  // ─── Données ───────────────────────────────────────────────────────────────
 
+  /** Charge toutes les personnalités et met à jour le compteur du parent */
   const fetchPersonalities = useCallback(async () => {
     try {
       const data = await getPersonalities();
@@ -84,26 +97,28 @@ export default function AdminPersonalities({ onCountChange }) {
   }, [onCountChange]);
 
   useEffect(() => {
-    {
-      fetchPersonalities();
-    }
+    fetchPersonalities();
   }, [fetchPersonalities]);
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
+  /** Affiche un message de succès pendant 3 secondes */
   function showSuccess(msg) {
     setSuccessMsg(msg);
     setTimeout(() => setSuccessMsg(""), 3000);
   }
 
+  /** Réinitialise le formulaire, l'image et quitte le mode édition */
   function resetForm() {
     setEditing(null);
     setFields(EMPTY_FORM);
     setImageFile(null);
     setImagePreview("");
+    // Réinitialise l'input file natif (non contrôlé par React)
     if (imageRef.current) imageRef.current.value = "";
   }
 
+  /** Passe en mode édition et pré-remplit le formulaire avec les données de la personnalité */
   function startEdit(p) {
     setEditing(p);
     setFields({
@@ -116,10 +131,12 @@ export default function AdminPersonalities({ onCountChange }) {
       website: p.website || "",
     });
     setImageFile(null);
+    // Affiche l'image existante depuis le serveur ou vide si aucune
     setImagePreview(p.image ? `${BASE_URL}${p.image}` : "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  /** Génère une URL d'aperçu local pour le fichier image sélectionné */
   function handleImageChange(e) {
     const file = e.target.files[0];
     if (file) {
@@ -130,6 +147,10 @@ export default function AdminPersonalities({ onCountChange }) {
 
   // ─── Handlers ──────────────────────────────────────────────────────────────
 
+  /**
+   * Soumet le formulaire via FormData (requis pour l'upload d'image)
+   * Crée ou met à jour la personnalité selon le mode actif
+   */
   async function handleSubmit(e) {
     e.preventDefault();
     setFormLoading(true);
@@ -155,6 +176,7 @@ export default function AdminPersonalities({ onCountChange }) {
     }
   }
 
+  /** Supprime une personnalité et son image après confirmation */
   async function handleDelete(id) {
     if (
       !window.confirm("Delete this personality? This action is irreversible.")
@@ -169,7 +191,7 @@ export default function AdminPersonalities({ onCountChange }) {
     }
   }
 
-  // ─── Render ────────────────────────────────────────────────────────────────
+  // ─── Rendu ─────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -185,7 +207,7 @@ export default function AdminPersonalities({ onCountChange }) {
       )}
 
       <div className="admin-content-grid">
-        {/* ── Form panel ─────────────────────────────────────────────────────── */}
+        {/* ── Panneau formulaire ─────────────────────────────────────────────── */}
         <section className="admin-form-panel">
           <div className="admin-panel-header">
             <h2 className="admin-panel-title">
@@ -198,6 +220,7 @@ export default function AdminPersonalities({ onCountChange }) {
             )}
           </div>
 
+          {/* Badge indiquant la personnalité en cours d'édition */}
           {editing && (
             <div className="admin-editing-badge">
               Editing: <strong>{editing.name}</strong>
@@ -236,6 +259,7 @@ export default function AdminPersonalities({ onCountChange }) {
             </div>
 
             <FormField label="Biography">
+              {/* Textarea à hauteur automatique via useAutoResize */}
               <textarea
                 ref={textareaRef}
                 className="form-input"
@@ -272,6 +296,7 @@ export default function AdminPersonalities({ onCountChange }) {
                 }
               >
                 <div className="admin-file-upload">
+                  {/* Aperçu de l'image sélectionnée ou de l'image existante */}
                   {imagePreview && (
                     <img
                       src={imagePreview}
@@ -290,6 +315,7 @@ export default function AdminPersonalities({ onCountChange }) {
               </FormField>
             </div>
 
+            {/* Liens réseaux sociaux et site web */}
             <div className="admin-form-row admin-form-row--3">
               <FormField label="Twitter">
                 <input
@@ -348,7 +374,7 @@ export default function AdminPersonalities({ onCountChange }) {
           </form>
         </section>
 
-        {/* ── List panel ─────────────────────────────────────────────────────── */}
+        {/* ── Panneau liste ──────────────────────────────────────────────────── */}
         <section className="admin-list-panel">
           <div className="admin-section-header">
             <h2 className="admin-section-title">All Personalities</h2>
@@ -366,6 +392,7 @@ export default function AdminPersonalities({ onCountChange }) {
               {personalities.map((p) => (
                 <div
                   key={p.id}
+                  // Surligne l'item en cours d'édition
                   className={`admin-list-item ${editing?.id === p.id ? "admin-list-item--editing" : ""}`}
                 >
                   <div className="personality-img-wrapper">
@@ -375,11 +402,13 @@ export default function AdminPersonalities({ onCountChange }) {
                         alt={p.name}
                         className="personality-img"
                         onError={(e) => {
+                          // Masque l'image cassée et affiche le placeholder à la place
                           e.target.style.display = "none";
                           e.target.nextSibling.style.display = "flex";
                         }}
                       />
                     ) : null}
+                    {/* Placeholder avec initiale — affiché si pas d'image ou image cassée */}
                     <div
                       className="personality-img-placeholder"
                       style={{ display: p.image ? "none" : "flex" }}

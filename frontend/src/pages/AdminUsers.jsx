@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { deleteUser, getAllUsers, updateUser } from "../api/users";
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Sous-composants ──────────────────────────────────────────────────────────
 
+/**
+ * Conteneur de champ de formulaire avec label et hint optionnel
+ * @param {{ label: string, hint?: string, children: React.ReactNode }} props
+ */
 function FormField({ label, hint, children }) {
   return (
     <div className="form-group">
@@ -13,8 +17,14 @@ function FormField({ label, hint, children }) {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Composant principal ──────────────────────────────────────────────────────
 
+/**
+ * Panneau d'administration des utilisateurs
+ * Affiche la liste filtrée des utilisateurs avec modification inline et suppression
+ * La suppression est désactivée pour les utilisateurs avec le rôle ADMIN
+ * @param {{ onCountChange?: Function }} props - Callback appelé avec le nombre d'utilisateurs
+ */
 export default function AdminUsers({ onCountChange }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +32,7 @@ export default function AdminUsers({ onCountChange }) {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [search, setSearch] = useState("");
-  const [editing, setEditing] = useState(null);
+  const [editing, setEditing] = useState(null); // Utilisateur en cours d'édition ou null
   const [fields, setFields] = useState({
     username: "",
     email: "",
@@ -30,8 +40,9 @@ export default function AdminUsers({ onCountChange }) {
     role: "USER",
   });
 
-  // ─── Data ──────────────────────────────────────────────────────────────────
+  // ─── Données ───────────────────────────────────────────────────────────────
 
+  /** Charge tous les utilisateurs et met à jour le compteur du parent */
   const fetchUsers = useCallback(async () => {
     try {
       const data = await getAllUsers();
@@ -45,18 +56,18 @@ export default function AdminUsers({ onCountChange }) {
   }, [onCountChange]);
 
   useEffect(() => {
-    {
-      fetchUsers();
-    }
+    fetchUsers();
   }, [fetchUsers]);
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
+  /** Affiche un message de succès pendant 3 secondes */
   function showSuccess(msg) {
     setSuccessMsg(msg);
     setTimeout(() => setSuccessMsg(""), 3000);
   }
 
+  /** Passe en mode édition et pré-remplit le formulaire avec les données de l'utilisateur */
   function startEdit(u) {
     setEditing(u);
     setFields({
@@ -70,6 +81,7 @@ export default function AdminUsers({ onCountChange }) {
 
   // ─── Handlers ──────────────────────────────────────────────────────────────
 
+  /** Met à jour l'utilisateur en cours d'édition */
   async function handleSubmit(e) {
     e.preventDefault();
     setFormLoading(true);
@@ -86,6 +98,10 @@ export default function AdminUsers({ onCountChange }) {
     }
   }
 
+  /**
+   * Supprime un utilisateur après confirmation
+   * La suppression est bloquée pour les admins (protection UI + backend)
+   */
   async function handleDelete(u) {
     if (!window.confirm(`Delete user "${u.username}"? This is irreversible.`))
       return;
@@ -98,15 +114,16 @@ export default function AdminUsers({ onCountChange }) {
     }
   }
 
-  // ─── Derived ───────────────────────────────────────────────────────────────
+  // ─── Données dérivées ─────────────────────────────────────────────────────
 
+  // Filtre les utilisateurs par nom d'utilisateur ou email
   const filtered = users.filter(
     (u) =>
       u.username.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase()),
   );
 
-  // ─── Render ────────────────────────────────────────────────────────────────
+  // ─── Rendu ─────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -122,7 +139,7 @@ export default function AdminUsers({ onCountChange }) {
       )}
 
       <div className="admin-content-grid page-fade">
-        {/* ── Edit form — only visible when editing ──────────────────────────── */}
+        {/* ── Formulaire d'édition — visible uniquement en mode édition ─────── */}
         {editing && (
           <section className="admin-form-panel">
             <div className="admin-panel-header">
@@ -135,6 +152,7 @@ export default function AdminUsers({ onCountChange }) {
               </button>
             </div>
 
+            {/* Badge indiquant l'utilisateur en cours d'édition */}
             <div className="admin-editing-badge">
               Editing: <strong>{editing.username}</strong>
             </div>
@@ -170,6 +188,7 @@ export default function AdminUsers({ onCountChange }) {
                     setFields((f) => ({ ...f, avatar: e.target.value }))
                   }
                 />
+                {/* Aperçu de l'avatar si une URL est saisie */}
                 {fields.avatar && (
                   <img
                     src={fields.avatar}
@@ -220,9 +239,10 @@ export default function AdminUsers({ onCountChange }) {
           </section>
         )}
 
-        {/* ── List panel ─────────────────────────────────────────────────────── */}
+        {/* ── Panneau liste ──────────────────────────────────────────────────── */}
         <section
           className="admin-list-panel"
+          // Occupe toute la largeur si aucun formulaire d'édition n'est affiché
           style={{ gridColumn: editing ? "auto" : "1 / -1" }}
         >
           <div className="admin-section-header">
@@ -237,6 +257,7 @@ export default function AdminUsers({ onCountChange }) {
               <h2 className="admin-section-title">All Users</h2>
               <span className="admin-count-badge">{users.length}</span>
             </div>
+            {/* Champ de recherche en temps réel par nom ou email */}
             <input
               className="form-input"
               style={{
@@ -259,8 +280,10 @@ export default function AdminUsers({ onCountChange }) {
               {filtered.map((u) => (
                 <div
                   key={u.id}
+                  // Surligne l'item en cours d'édition
                   className={`admin-list-item ${editing?.id === u.id ? "admin-list-item--editing" : ""}`}
                 >
+                  {/* Avatar ou initiale en fallback */}
                   <div className="admin-list-item-img admin-list-item-img--round">
                     {u.avatar ? (
                       <img src={u.avatar} alt={u.username} />
@@ -280,6 +303,7 @@ export default function AdminUsers({ onCountChange }) {
                       }}
                     >
                       <p className="admin-list-item-title">{u.username}</p>
+                      {/* Badge de rôle coloré selon USER ou ADMIN */}
                       <span className="admin-role-badge" data-role={u.role}>
                         {u.role === "ADMIN" ? "Admin" : "User"}
                       </span>
@@ -318,6 +342,7 @@ export default function AdminUsers({ onCountChange }) {
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                       </svg>
                     </button>
+                    {/* Suppression désactivée pour les admins */}
                     <button
                       onClick={() => handleDelete(u)}
                       className="admin-action-btn admin-action-btn--delete"

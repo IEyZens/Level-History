@@ -3,6 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 
+/**
+ * Page d'inscription
+ * Crée un compte, met à jour le contexte auth et redirige vers l'accueil
+ */
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -13,12 +17,14 @@ export default function RegisterPage() {
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
+  /** Soumet le formulaire d'inscription et redirige si réussi */
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
       const data = await register({ username, email, password });
+      // Gère les différentes structures de réponse possibles
       setUser(data.data?.user || data.data || data.user || data);
       navigate("/");
     } catch (err) {

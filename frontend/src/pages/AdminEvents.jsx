@@ -7,8 +7,9 @@ import {
 } from "../api/events";
 import { useAutoResize } from "../hooks/useAutoResize";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Constantes ───────────────────────────────────────────────────────────────
 
+/** Labels affichés pour chaque catégorie d'événement */
 const EVENT_CATEGORIES = {
   OTHER: "Other",
   CONSOLE_RELEASE: "Console",
@@ -18,6 +19,7 @@ const EVENT_CATEGORIES = {
   CULTURAL_IMPACT: "Culture",
 };
 
+/** Couleurs de fond des badges de catégorie */
 const CATEGORY_BADGE_COLORS = {
   CONSOLE_RELEASE: "#e8f0fe",
   GAME_RELEASE: "#e6f4ea",
@@ -27,6 +29,7 @@ const CATEGORY_BADGE_COLORS = {
   OTHER: "#f1f3f4",
 };
 
+/** État initial du formulaire */
 const EMPTY_FORM = {
   title: "",
   description: "",
@@ -35,8 +38,12 @@ const EMPTY_FORM = {
   category: "OTHER",
 };
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Sous-composants ──────────────────────────────────────────────────────────
 
+/**
+ * Conteneur de champ de formulaire avec label et hint optionnel
+ * @param {{ label: string, hint?: string, children: React.ReactNode }} props
+ */
 function FormField({ label, hint, children }) {
   return (
     <div className="form-group">
@@ -47,22 +54,28 @@ function FormField({ label, hint, children }) {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Composant principal ──────────────────────────────────────────────────────
 
+/**
+ * Panneau d'administration des événements — CRUD complet
+ * Affiche un formulaire de création/édition et la liste de tous les événements
+ * @param {{ onCountChange?: Function }} props - Callback appelé avec le nombre d'événements
+ */
 export default function AdminEvents({ onCountChange }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [editing, setEditing] = useState(null);
+  const [editing, setEditing] = useState(null); // Événement en cours d'édition ou null
   const [fields, setFields] = useState(EMPTY_FORM);
 
   const textareaRef = useRef(null);
   useAutoResize(textareaRef);
 
-  // ─── Data ──────────────────────────────────────────────────────────────────
+  // ─── Données ───────────────────────────────────────────────────────────────
 
+  /** Charge tous les événements et met à jour le compteur du parent */
   const fetchEvents = useCallback(async () => {
     try {
       const data = await getEvents();
@@ -76,29 +89,30 @@ export default function AdminEvents({ onCountChange }) {
   }, [onCountChange]);
 
   useEffect(() => {
-    {
-      fetchEvents();
-    }
+    fetchEvents();
   }, [fetchEvents]);
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
+  /** Affiche un message de succès pendant 3 secondes */
   function showSuccess(msg) {
     setSuccessMsg(msg);
     setTimeout(() => setSuccessMsg(""), 3000);
   }
 
+  /** Réinitialise le formulaire et quitte le mode édition */
   function resetForm() {
     setEditing(null);
     setFields(EMPTY_FORM);
   }
 
+  /** Passe en mode édition et pré-remplit le formulaire avec les données de l'événement */
   function startEdit(event) {
     setEditing(event);
     setFields({
       title: event.title,
       description: event.description,
-      date: event.date?.slice(0, 10),
+      date: event.date?.slice(0, 10), // Format YYYY-MM-DD pour l'input date
       image: event.image || "",
       category: event.category || "OTHER",
     });
@@ -107,6 +121,7 @@ export default function AdminEvents({ onCountChange }) {
 
   // ─── Handlers ──────────────────────────────────────────────────────────────
 
+  /** Soumet le formulaire — crée ou met à jour selon le mode actif */
   async function handleSubmit(e) {
     e.preventDefault();
     setFormLoading(true);
@@ -129,6 +144,7 @@ export default function AdminEvents({ onCountChange }) {
     }
   }
 
+  /** Supprime un événement après confirmation */
   async function handleDelete(id) {
     if (!window.confirm("Delete this event? This action is irreversible."))
       return;
@@ -141,7 +157,7 @@ export default function AdminEvents({ onCountChange }) {
     }
   }
 
-  // ─── Render ────────────────────────────────────────────────────────────────
+  // ─── Rendu ─────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -157,7 +173,7 @@ export default function AdminEvents({ onCountChange }) {
       )}
 
       <div className="admin-content-grid">
-        {/* ── Form panel ─────────────────────────────────────────────────────── */}
+        {/* ── Panneau formulaire ─────────────────────────────────────────────── */}
         <section className="admin-form-panel">
           <div className="admin-panel-header">
             <h2 className="admin-panel-title">
@@ -170,6 +186,7 @@ export default function AdminEvents({ onCountChange }) {
             )}
           </div>
 
+          {/* Badge indiquant l'événement en cours d'édition */}
           {editing && (
             <div className="admin-editing-badge">
               Editing: <strong>{editing.title}</strong>
@@ -190,6 +207,7 @@ export default function AdminEvents({ onCountChange }) {
             </FormField>
 
             <FormField label="Description">
+              {/* Textarea à hauteur automatique via useAutoResize */}
               <textarea
                 ref={textareaRef}
                 className="form-input"
@@ -246,6 +264,7 @@ export default function AdminEvents({ onCountChange }) {
               />
             </FormField>
 
+            {/* Aperçu de l'image si une URL est saisie */}
             {fields.image && (
               <div className="admin-image-preview">
                 <img
@@ -281,7 +300,7 @@ export default function AdminEvents({ onCountChange }) {
           </form>
         </section>
 
-        {/* ── List panel ─────────────────────────────────────────────────────── */}
+        {/* ── Panneau liste ──────────────────────────────────────────────────── */}
         <section className="admin-list-panel">
           <div className="admin-section-header">
             <h2 className="admin-section-title">All Events</h2>
@@ -299,6 +318,7 @@ export default function AdminEvents({ onCountChange }) {
               {events.map((event) => (
                 <div
                   key={event.id}
+                  // Surligne l'item en cours d'édition
                   className={`admin-list-item ${editing?.id === event.id ? "admin-list-item--editing" : ""}`}
                 >
                   <div className="admin-list-item-img">

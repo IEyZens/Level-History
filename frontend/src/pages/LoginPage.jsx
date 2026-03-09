@@ -3,6 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 
+/**
+ * Page de connexion
+ * Authentifie l'utilisateur et met à jour le contexte avant de rediriger vers l'accueil
+ */
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,12 +16,14 @@ export default function LoginPage() {
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
+  /** Soumet le formulaire de connexion et redirige vers l'accueil si réussi */
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
       const data = await login({ email, password });
+      // Gère les différentes structures de réponse possibles
       setUser(data.data?.user || data.data || data.user || data);
       navigate("/");
     } catch (err) {

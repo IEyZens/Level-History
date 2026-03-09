@@ -2,12 +2,21 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../api/auth";
 import { useAuth, useTheme } from "../context/AuthContext";
 
+/**
+ * Barre de navigation globale de l'application
+ * Affiche les liens de navigation, le bouton de thème et les actions d'authentification
+ * Le lien Admin n'est visible que pour les utilisateurs avec le rôle ADMIN
+ */
 export default function Navbar() {
   const { user, clearUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
+  /**
+   * Déconnecte l'utilisateur — efface le contexte et redirige vers /login
+   * Le bloc finally garantit la déconnexion locale même si l'API échoue
+   */
   async function handleLogout() {
     try {
       await logout();
@@ -17,6 +26,10 @@ export default function Navbar() {
     }
   }
 
+  /**
+   * Retourne la classe CSS active si le chemin correspond à la route courante
+   * @param {string} path - Chemin à comparer avec l'URL courante
+   */
   function isActive(path) {
     return location.pathname === path ? "navbar-link--active" : "";
   }
@@ -41,6 +54,7 @@ export default function Navbar() {
           Personalities
         </Link>
 
+        {/* Lien admin visible uniquement pour les administrateurs */}
         {user?.role === "ADMIN" && (
           <Link
             to="/admin"
@@ -52,8 +66,10 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-auth">
+        {/* Bouton de bascule de thème — passe la position du clic pour l'animation View Transitions */}
         <button onClick={(e) => toggleTheme(e)} className="navbar-theme-btn">
           {theme === "light" ? (
+            // Icône lune — thème clair actif
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -64,6 +80,7 @@ export default function Navbar() {
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
             </svg>
           ) : (
+            // Icône soleil — thème sombre actif
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -84,12 +101,14 @@ export default function Navbar() {
           )}
         </button>
 
+        {/* Utilisateur connecté — avatar cliquable + bouton de déconnexion */}
         {user && (
           <>
             <Link to="/profile" className="navbar-avatar" title={user.username}>
               {user.avatar ? (
                 <img src={user.avatar} alt={user.username} />
               ) : (
+                // Initiale du nom d'utilisateur si pas d'avatar
                 <div className="navbar-avatar-placeholder">
                   {user.username?.charAt(0).toUpperCase() ?? "?"}
                 </div>
@@ -101,6 +120,7 @@ export default function Navbar() {
           </>
         )}
 
+        {/* Utilisateur non connecté — liens vers login et inscription */}
         {!user && (
           <>
             <Link to="/login" className="btn btn-outline">

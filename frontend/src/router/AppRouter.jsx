@@ -10,38 +10,36 @@ import PersonalitiesPage from "../pages/PersonalitiesPage";
 import ProfilePage from "../pages/ProfilePage";
 import RegisterPage from "../pages/RegisterPage";
 
+/**
+ * Route accessible uniquement aux utilisateurs connectés
+ * Redirige vers /login si non authentifié
+ */
 function PrivateRoute({ children }) {
   const { user } = useAuth();
-
-  if (user) {
-    return children;
-  } else {
-    return <Navigate to="login" replace />;
-  }
+  return user ? children : <Navigate to="login" replace />;
 }
 
+/**
+ * Route accessible uniquement aux admins
+ * Redirige vers /login si non connecté, vers / si connecté mais non admin
+ */
 function AdminRoute({ children }) {
   const { user } = useAuth();
-
-  if (!user) {
-    return <Navigate to="login" replace />;
-  } else if (user.role !== "ADMIN") {
-    return <Navigate to="/" replace />;
-  } else {
-    return children;
-  }
+  if (!user) return <Navigate to="login" replace />;
+  if (user.role !== "ADMIN") return <Navigate to="/" replace />;
+  return children;
 }
 
+/**
+ * Route accessible uniquement aux visiteurs non connectés (login, register)
+ * Redirige vers / si l'utilisateur est déjà authentifié
+ */
 function PublicOnlyRoute({ children }) {
   const { user } = useAuth();
-
-  if (user) {
-    return <Navigate to="/" replace />;
-  } else {
-    return children;
-  }
+  return user ? <Navigate to="/" replace /> : children;
 }
 
+/** Arbre de routes de l'application */
 function AppRouter() {
   return (
     <Routes>
@@ -51,7 +49,7 @@ function AppRouter() {
       <Route path="/events/:id" element={<EventDetailPage />} />
       <Route path="/personalities" element={<PersonalitiesPage />} />
 
-      {/* Routes publiques seulement (redirige si connecté) */}
+      {/* Routes publiques seulement — redirige vers / si connecté */}
       <Route
         path="/login"
         element={
@@ -68,6 +66,8 @@ function AppRouter() {
           </PublicOnlyRoute>
         }
       />
+
+      {/* Route privée — redirige vers /login si non connecté */}
       <Route
         path="/profile"
         element={
@@ -77,7 +77,7 @@ function AppRouter() {
         }
       />
 
-      {/* Routes admin uniquement */}
+      {/* Route admin uniquement */}
       <Route
         path="/admin"
         element={

@@ -10,6 +10,7 @@ import { toggleLike } from "../api/likes";
 import { useAuth } from "../context/AuthContext";
 import { useAutoResize } from "../hooks/useAutoResize";
 
+/** Labels affichés pour chaque catégorie d'événement */
 const CATEGORY_LABELS = {
   CONSOLE_RELEASE: "Console",
   GAME_RELEASE: "Games",
@@ -19,6 +20,11 @@ const CATEGORY_LABELS = {
   OTHER: "Other",
 };
 
+/**
+ * Page de détail d'un événement
+ * Affiche l'événement, le bouton like, et la section commentaires
+ * Les admins peuvent supprimer l'événement et tous les commentaires
+ */
 export default function EventDetailPage() {
   const [event, setEvent] = useState(null);
   const [comments, setComments] = useState([]);
@@ -34,11 +40,16 @@ export default function EventDetailPage() {
   const textareaRef = useRef(null);
   useAutoResize(textareaRef);
 
+  /**
+   * Charge l'événement et ses commentaires
+   * Détermine si l'utilisateur courant a déjà liké l'événement
+   */
   const fetchEventData = useCallback(async () => {
     try {
       const eventData = await getEventById(id);
       const commentsData = await getCommentsByEvent(id);
       setEvent(eventData);
+      // Vérifie si l'utilisateur connecté figure dans la liste des likes
       setIsLiked(eventData.likes?.some((l) => l.userId === user?.id) ?? false);
       setComments(commentsData);
     } catch (err) {
@@ -52,6 +63,7 @@ export default function EventDetailPage() {
     fetchEventData();
   }, [fetchEventData]);
 
+  /** Bascule le like de l'utilisateur sur cet événement */
   async function handleLike() {
     if (!user) return;
     try {
@@ -62,6 +74,7 @@ export default function EventDetailPage() {
     }
   }
 
+  /** Soumet un nouveau commentaire et rafraîchit la liste */
   async function handleAddComment(e) {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -77,6 +90,7 @@ export default function EventDetailPage() {
     }
   }
 
+  /** Supprime un commentaire après confirmation (propriétaire ou admin) */
   async function handleDeleteComment(commentId) {
     if (!window.confirm("Delete this comment?")) return;
     try {
@@ -87,6 +101,7 @@ export default function EventDetailPage() {
     }
   }
 
+  /** Supprime l'événement et redirige vers la liste (admin uniquement) */
   async function handleDeleteEvent() {
     if (
       !window.confirm("Delete this event? This will also delete all comments.")
@@ -99,6 +114,8 @@ export default function EventDetailPage() {
       setError(err.message);
     }
   }
+
+  // ─── États de chargement et d'erreur ─────────────────────────────────────
 
   if (loading)
     return (
@@ -120,12 +137,15 @@ export default function EventDetailPage() {
         <div className="alert alert-error">{error}</div>
       </div>
     );
+
   if (!event)
     return (
       <div className="page" style={{ paddingTop: "4rem" }}>
         <p>Event not found.</p>
       </div>
     );
+
+  // ─── Rendu ────────────────────────────────────────────────────────────────
 
   return (
     <div className="page-fade">
@@ -144,10 +164,10 @@ export default function EventDetailPage() {
         </p>
       </section>
 
-      {/* ── Content ──────────────────────────────────────────────────────────── */}
+      {/* ── Contenu principal ────────────────────────────────────────────────── */}
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="event-detail-content">
-          {/* Banner */}
+          {/* Image de bannière ou placeholder */}
           <div className="event-detail-banner">
             {event.image ? (
               <img src={event.image} alt={event.title} />
@@ -156,11 +176,12 @@ export default function EventDetailPage() {
             )}
           </div>
 
-          {/* Description + actions */}
+          {/* Description et actions (like + suppression admin) */}
           <div className="event-detail-body">
             <p className="event-detail-description">{event.description}</p>
 
             <div className="event-detail-actions">
+              {/* Bouton like — désactivé si non connecté */}
               <button
                 onClick={handleLike}
                 className="like-btn"
@@ -168,6 +189,7 @@ export default function EventDetailPage() {
                 title={user ? (isLiked ? "Unlike" : "Like") : "Login to like"}
               >
                 {isLiked ? (
+                  // Cœur plein — événement liké
                   <svg
                     viewBox="0 0 24 24"
                     fill="#e05555"
@@ -177,6 +199,7 @@ export default function EventDetailPage() {
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                   </svg>
                 ) : (
+                  // Cœur vide — événement non liké
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -192,6 +215,7 @@ export default function EventDetailPage() {
                 </span>
               </button>
 
+              {/* Bouton de suppression visible uniquement pour les admins */}
               {user?.role === "ADMIN" && (
                 <button
                   onClick={handleDeleteEvent}
@@ -204,7 +228,7 @@ export default function EventDetailPage() {
             </div>
           </div>
 
-          {/* ── Comments ───────────────────────────────────────────────────── */}
+          {/* ── Section commentaires ──────────────────────────────────────────── */}
           <div className="event-detail-comments">
             <div className="event-detail-comments-header">
               <h3>Comments</h3>
@@ -212,6 +236,7 @@ export default function EventDetailPage() {
             </div>
 
             {user ? (
+              // Formulaire d'ajout de commentaire — visible si connecté
               <form
                 onSubmit={handleAddComment}
                 className="event-detail-comment-form"
@@ -236,6 +261,7 @@ export default function EventDetailPage() {
                 </div>
               </form>
             ) : (
+              // Invitation à se connecter pour commenter
               <div className="event-detail-login-hint">
                 <svg
                   viewBox="0 0 24 24"
@@ -259,6 +285,7 @@ export default function EventDetailPage() {
               </div>
             )}
 
+            {/* Liste des commentaires */}
             <div className="event-detail-comments-list">
               {comments.length === 0 ? (
                 <div
@@ -272,6 +299,7 @@ export default function EventDetailPage() {
                   <div key={comment.id} className="event-detail-comment">
                     <div className="event-detail-comment-header">
                       <div className="event-detail-comment-author">
+                        {/* Avatar avec initiale */}
                         <div className="event-detail-comment-avatar">
                           {comment.author.username.charAt(0).toUpperCase()}
                         </div>
@@ -289,6 +317,7 @@ export default function EventDetailPage() {
                           </small>
                         </div>
                       </div>
+                      {/* Bouton de suppression — visible pour l'auteur ou un admin */}
                       {user &&
                         (user.id === comment.authorId ||
                           user.role === "ADMIN") && (

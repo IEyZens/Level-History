@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom";
 
+/**
+ * Page 404 — affichée pour toute route non reconnue
+ */
 export default function NotFoundPage() {
   return (
     <div

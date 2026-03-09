@@ -4,6 +4,10 @@ import { getEvents } from "../api/events";
 import TimelinePreview from "../components/TimelinePreview";
 import { useAuth } from "../context/AuthContext";
 
+/**
+ * Page d'accueil de l'application
+ * Présente le hero, les trois façons d'explorer, un aperçu de la timeline et le CTA communautaire
+ */
 export default function HomePage() {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
@@ -11,6 +15,7 @@ export default function HomePage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Charge les événements pour l'aperçu de la timeline
   useEffect(() => {
     async function fetchHomePage() {
       try {
@@ -47,6 +52,7 @@ export default function HomePage() {
           >
             Explore the Timeline
           </button>
+          {/* Scroll vers la section "Trois façons d'apprendre" */}
           <button
             className="btn btn-outline-dark"
             onClick={() =>
@@ -64,7 +70,7 @@ export default function HomePage() {
         <div className="home-banner-placeholder" />
       </div>
 
-      {/* ── Three Ways to Learn ──────────────────────────────────────────────── */}
+      {/* ── Trois façons d'explorer ───────────────────────────────────────────── */}
       <section className="section" id="learn-more">
         <div className="section-inner">
           <span className="section-label">Discover</span>
@@ -73,6 +79,7 @@ export default function HomePage() {
             Navigate through the decades of video games.
           </p>
           <div className="home-learn-grid">
+            {/* Carte principale — Timeline interactive */}
             <div
               className="learn-card learn-card--featured"
               onClick={() => navigate("/events")}
@@ -96,6 +103,7 @@ export default function HomePage() {
               </div>
             </div>
 
+            {/* Carte — Consoles iconiques */}
             <div
               className="learn-card learn-card--dark"
               onClick={() => navigate("/events")}
@@ -132,6 +140,7 @@ export default function HomePage() {
               </Link>
             </div>
 
+            {/* Carte — Grandes personnalités */}
             <div
               className="learn-card learn-card--dark"
               onClick={() => navigate("/personalities")}
@@ -174,7 +183,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Timeline Preview ─────────────────────────────────────────────────── */}
+      {/* ── Aperçu de la timeline ─────────────────────────────────────────────── */}
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="section-inner">
           <span className="section-label">History</span>
@@ -220,7 +229,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Community ────────────────────────────────────────────────────────── */}
+      {/* ── CTA communautaire ────────────────────────────────────────────────── */}
       <section className="home-community">
         <span className="section-label">Community</span>
         <h2>Join the Community</h2>
@@ -229,6 +238,7 @@ export default function HomePage() {
           with other gaming history enthusiasts.
         </p>
         <div className="home-community-buttons">
+          {/* Boutons d'inscription/connexion pour les visiteurs non connectés */}
           {!user && (
             <>
               <button
@@ -245,6 +255,7 @@ export default function HomePage() {
               </button>
             </>
           )}
+          {/* Redirection vers les événements pour les utilisateurs connectés */}
           {user && (
             <button
               className="btn btn-primary"

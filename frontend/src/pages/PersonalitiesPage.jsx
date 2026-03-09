@@ -5,6 +5,7 @@ import Accordion from "../components/Accordion";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+/** Labels courts des catégories pour les filtres et pills */
 const CATEGORY_LABELS = {
   ALL: "All",
   VISIONARY: "Visionaries",
@@ -12,18 +13,21 @@ const CATEGORY_LABELS = {
   EXECUTIVE: "Executives",
 };
 
+/** Labels secondaires affichés dans les cartes de catégorie */
 const CATEGORY_SUBLABELS = {
   VISIONARY: "Creators",
   BUILDER: "Pioneers",
   EXECUTIVE: "Executives",
 };
 
+/** Descriptions courtes des catégories dans les cartes */
 const CATEGORY_DESCRIPTIONS = {
   VISIONARY: "Those who set the rules and created the worlds.",
   BUILDER: "The engineers who made the impossible possible.",
   EXECUTIVE: "Those who built the empires and led the studios.",
 };
 
+/** Icônes SVG des cartes de catégorie */
 const CATEGORY_ICONS = {
   VISIONARY: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -48,6 +52,7 @@ const CATEGORY_ICONS = {
   ),
 };
 
+/** Titre et description de la section Legends selon la catégorie active */
 const LEGENDS_CONTENT = {
   ALL: {
     title: "All Personalities",
@@ -67,6 +72,7 @@ const LEGENDS_CONTENT = {
   },
 };
 
+/** Questions/réponses de la section FAQ */
 const FAQ_ITEMS = [
   {
     question: "Who are the personalities?",
@@ -91,14 +97,20 @@ const FAQ_ITEMS = [
   },
 ];
 
+/**
+ * Page des personnalités — liste filtrée par catégorie avec biographies extensibles
+ * Inclut des cartes de catégorie cliquables, une FAQ et un CTA vers la timeline
+ */
 export default function PersonalitiesPage() {
   const [personalities, setPersonalities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeCategory, setActiveCategory] = useState("ALL");
+  // Set des IDs des biographies actuellement développées
   const [expandedIds, setExpandedIds] = useState(new Set());
   const navigate = useNavigate();
 
+  // Filtre les personnalités selon la catégorie active
   const filteredPersonalities =
     activeCategory === "ALL"
       ? personalities
@@ -117,6 +129,10 @@ export default function PersonalitiesPage() {
     fetchPersonalities();
   }, []);
 
+  /**
+   * Bascule l'état développé/réduit d'une biographie
+   * @param {number} id - ID de la personnalité
+   */
   function toggleExpand(id) {
     setExpandedIds((prev) => {
       const next = new Set(prev);
@@ -139,7 +155,7 @@ export default function PersonalitiesPage() {
         </p>
       </section>
 
-      {/* ── Categories ───────────────────────────────────────────────────────── */}
+      {/* ── Cartes de catégorie cliquables ───────────────────────────────────── */}
       <section className="section" style={{ paddingTop: "2rem" }}>
         <div className="section-inner">
           <span className="section-label">Categories</span>
@@ -156,12 +172,15 @@ export default function PersonalitiesPage() {
               .map(([category], index) => (
                 <div
                   key={category}
+                  // Bascule le filtre ou réinitialise si déjà actif
                   onClick={() =>
                     setActiveCategory(
                       activeCategory === category ? "ALL" : category,
                     )
                   }
-                  className={`personalities-category-card ${index === 0 ? "personalities-category-card--featured" : ""} ${activeCategory === category ? "personalities-category-card--active" : ""}`}
+                  className={`personalities-category-card
+                    ${index === 0 ? "personalities-category-card--featured" : ""}
+                    ${activeCategory === category ? "personalities-category-card--active" : ""}`}
                 >
                   <div className="personalities-category-top">
                     <span className="personalities-category-sublabel">
@@ -197,14 +216,15 @@ export default function PersonalitiesPage() {
         </div>
       </section>
 
-      {/* ── Personalities List ───────────────────────────────────────────────── */}
+      {/* ── Liste des personnalités ───────────────────────────────────────────── */}
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="section-inner" style={{ textAlign: "left" }}>
           <span className="section-label" style={{ textAlign: "left" }}>
             Legends
           </span>
+
           <div className="personalities-legends-layout">
-            {/* Left sticky */}
+            {/* Colonne gauche — titre, description et navigation par pills */}
             <div className="personalities-legends-left">
               <h2 className="personalities-section-title">{legend.title}</h2>
               <p className="personalities-section-desc">{legend.desc}</p>
@@ -217,6 +237,7 @@ export default function PersonalitiesPage() {
                   View all
                 </button>
               )}
+              {/* Pills de navigation par catégorie */}
               <div className="personalities-nav-pills">
                 {Object.entries(CATEGORY_LABELS).map(([cat, label]) => (
                   <button
@@ -230,7 +251,7 @@ export default function PersonalitiesPage() {
               </div>
             </div>
 
-            {/* Right list */}
+            {/* Colonne droite — liste des personnalités filtrées */}
             <div className="personalities-legends-right">
               {loading && (
                 <p
@@ -258,9 +279,12 @@ export default function PersonalitiesPage() {
                   {filteredPersonalities.map((personality) => {
                     const isExpanded = expandedIds.has(personality.id);
                     const bio = personality.biography ?? "";
+                    // Tronque les biographies de plus de 120 caractères
                     const isLong = bio.length > 120;
+
                     return (
                       <div key={personality.id} className="personality-card">
+                        {/* Photo ou initiale en fallback */}
                         <div className="personality-img-wrapper">
                           {personality.image ? (
                             <img
@@ -268,6 +292,7 @@ export default function PersonalitiesPage() {
                               alt={personality.name}
                               className="personality-img"
                               onError={(e) => {
+                                // Masque l'image cassée et affiche le placeholder
                                 e.target.style.display = "none";
                                 e.target.nextSibling.style.display = "flex";
                               }}
@@ -282,9 +307,12 @@ export default function PersonalitiesPage() {
                             {personality.name?.charAt(0).toUpperCase()}
                           </div>
                         </div>
+
                         <div className="personality-info">
                           <h3>{personality.name}</h3>
                           <p className="personality-role">{personality.role}</p>
+
+                          {/* Biographie avec troncature et bouton "Voir plus/moins" */}
                           <p className="personality-bio">
                             {isExpanded || !isLong ? (
                               bio
@@ -330,6 +358,8 @@ export default function PersonalitiesPage() {
                               </button>
                             )}
                           </p>
+
+                          {/* Liens réseaux sociaux */}
                           <div className="personality-socials">
                             {personality.twitter && (
                               <a
@@ -392,7 +422,7 @@ export default function PersonalitiesPage() {
         </div>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────────────────────── */}
+      {/* ── CTA vers la timeline ─────────────────────────────────────────────── */}
       <section className="personalities-cta">
         <span className="section-label">Timeline</span>
         <h2>See Their Legacy in Action</h2>

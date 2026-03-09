@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { getAdminStats, getMyProfile, updateMyProfile } from "../api/users";
 import { useAuth } from "../context/AuthContext";
 
+/**
+ * Page de profil utilisateur — sidebar + contenu par onglet
+ * Sections : Overview (stats + résumé), Settings (édition du profil), Activity (likes + commentaires)
+ * Les admins ont accès aux statistiques globales de la plateforme et au lien Admin Panel
+ */
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState(null);
@@ -22,6 +27,7 @@ export default function ProfilePage() {
 
   const navigate = useNavigate();
 
+  /** Charge le profil et les stats admin si applicable */
   async function fetchProfile() {
     try {
       const data = await getMyProfile();
@@ -44,6 +50,10 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
+  /**
+   * Met à jour le profil et synchronise le contexte auth
+   * Le mot de passe n'est envoyé que s'il est renseigné
+   */
   async function handleUpdate(e) {
     e.preventDefault();
     setFormLoading(true);
@@ -56,6 +66,7 @@ export default function ProfilePage() {
         avatar,
         password: password || undefined,
       });
+      // Met à jour le contexte global et l'état local
       setUser(updatedUser);
       setProfile((prev) => ({ ...prev, ...updatedUser }));
       setPassword("");
@@ -67,6 +78,8 @@ export default function ProfilePage() {
       setFormLoading(false);
     }
   }
+
+  // ─── États de chargement et d'erreur ─────────────────────────────────────
 
   if (loading) {
     return (
@@ -98,10 +111,12 @@ export default function ProfilePage() {
         <div className="alert alert-error">{error}</div>
       </div>
     );
+
   if (!profile) return null;
 
   const isAdmin = profile.role === "ADMIN";
 
+  /** Items de navigation de la sidebar — Admin Panel ajouté conditionnellement */
   const NAV_ITEMS = [
     {
       key: "overview",
@@ -151,6 +166,7 @@ export default function ProfilePage() {
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
         </svg>
       ),
+      // Badge avec le total des actions de l'utilisateur
       count: (profile.likes?.length || 0) + (profile.comments?.length || 0),
     },
     ...(isAdmin
@@ -174,10 +190,13 @@ export default function ProfilePage() {
       : []),
   ];
 
+  // ─── Rendu ────────────────────────────────────────────────────────────────
+
   return (
     <div className="profile-layout page-fade">
       {/* ── Sidebar ──────────────────────────────────────────────────────────── */}
       <aside className="admin-sidebar">
+        {/* Identité de l'utilisateur */}
         <div className="profile-sidebar-identity">
           <div className="profile-sidebar-avatar">
             {profile.avatar ? (
@@ -201,6 +220,7 @@ export default function ProfilePage() {
             <button
               key={key}
               className={`admin-nav-item ${activeSection === key ? "admin-nav-item--active" : ""}`}
+              // Admin Panel redirige vers /admin, les autres changent la section active
               onClick={() =>
                 key === "admin" ? navigate("/admin") : setActiveSection(key)
               }
@@ -225,12 +245,12 @@ export default function ProfilePage() {
         </div>
       </aside>
 
-      {/* ── Main ─────────────────────────────────────────────────────────────── */}
+      {/* ── Contenu principal ─────────────────────────────────────────────────── */}
       <main className="admin-main">
         {/* ── Overview ──────────────────────────────────────────────────────── */}
         {activeSection === "overview" && (
           <div className="profile-overview page-fade">
-            {/* Header card */}
+            {/* Carte d'identité principale */}
             <div className="profile-overview-hero">
               <div className="profile-overview-avatar">
                 {profile.avatar ? (
@@ -271,7 +291,7 @@ export default function ProfilePage() {
               </button>
             </div>
 
-            {/* Stats */}
+            {/* Statistiques globales — visibles uniquement pour les admins */}
             {isAdmin && stats && (
               <div style={{ marginTop: "1.5rem" }}>
                 <p
@@ -296,7 +316,7 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Quick activity summary */}
+            {/* Résumé rapide de l'activité personnelle */}
             <div className="profile-quick-stats">
               <div className="profile-quick-stat">
                 <span className="profile-quick-stat-value">
@@ -321,6 +341,7 @@ export default function ProfilePage() {
               className="admin-content-grid"
               style={{ gridTemplateColumns: "420px 1fr" }}
             >
+              {/* Formulaire d'édition */}
               <section className="admin-form-panel">
                 <div className="admin-panel-header">
                   <h2 className="admin-panel-title">Edit Profile</h2>
@@ -369,6 +390,7 @@ export default function ProfilePage() {
                       value={avatar}
                       onChange={(e) => setAvatar(e.target.value)}
                     />
+                    {/* Aperçu de l'avatar si une URL est saisie */}
                     {avatar && (
                       <div style={{ marginTop: "0.5rem" }}>
                         <img
@@ -418,7 +440,7 @@ export default function ProfilePage() {
                 </form>
               </section>
 
-              {/* Info panel */}
+              {/* Récapitulatif des informations actuelles du compte */}
               <section
                 className="admin-list-panel"
                 style={{ padding: "1.5rem" }}
@@ -444,7 +466,11 @@ export default function ProfilePage() {
                       label: "Member since",
                       value: new Date(profile.createdAt).toLocaleDateString(
                         "en-GB",
-                        { day: "numeric", month: "long", year: "numeric" },
+                        {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        },
                       ),
                     },
                   ].map(({ label, value }) => (
@@ -494,7 +520,7 @@ export default function ProfilePage() {
             className="page-fade"
             style={{ display: "flex", flexDirection: "column", gap: "2rem" }}
           >
-            {/* Liked Events */}
+            {/* Événements likés — cliquables pour naviguer vers le détail */}
             <section className="admin-list-panel">
               <div className="admin-section-header">
                 <h2 className="admin-section-title">Liked Events</h2>
@@ -569,7 +595,7 @@ export default function ProfilePage() {
               )}
             </section>
 
-            {/* Comments */}
+            {/* Commentaires récents — cliquables pour naviguer vers l'événement */}
             <section className="admin-list-panel">
               <div className="admin-section-header">
                 <h2 className="admin-section-title">Recent Comments</h2>
@@ -621,7 +647,11 @@ export default function ProfilePage() {
                           {" · "}
                           {new Date(comment.createdAt).toLocaleDateString(
                             "en-GB",
-                            { day: "numeric", month: "short", year: "numeric" },
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            },
                           )}
                         </p>
                         <svg
@@ -640,6 +670,7 @@ export default function ProfilePage() {
                           <polyline points="9 18 15 12 9 6" />
                         </svg>
                       </div>
+                      {/* Contenu tronqué à 140 caractères */}
                       <p
                         style={{
                           fontSize: "0.875rem",

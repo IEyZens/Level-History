@@ -6,7 +6,7 @@ import AdminEvents from "./AdminEvents";
 import AdminPersonalities from "./AdminPersonalities";
 import AdminUsers from "./AdminUsers";
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
+// ─── Icônes SVG ───────────────────────────────────────────────────────────────
 
 const IconCalendar = () => (
   <svg
@@ -49,25 +49,33 @@ const IconUsers = () => (
   </svg>
 );
 
+// ─── Configuration des onglets ────────────────────────────────────────────────
+
 const TABS = [
   { key: "events", label: "Events", icon: <IconCalendar /> },
   { key: "personalities", label: "Personalities", icon: <IconPerson /> },
   { key: "users", label: "Users", icon: <IconUsers /> },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Composant principal ──────────────────────────────────────────────────────
 
+/**
+ * Page d'administration — shell avec sidebar et onglets
+ * Délègue le contenu à AdminEvents, AdminPersonalities ou AdminUsers
+ * selon l'onglet actif
+ */
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("events");
 
-  // Sidebar badge counts — each sub-component les met à jour via onCountChange
+  // Compteurs affichés dans les badges de la sidebar
+  // Mis à jour au montage (pré-chargement) et par chaque sous-composant via onCountChange
   const [counts, setCounts] = useState({
     events: 0,
     personalities: 0,
     users: 0,
   });
 
-  // Pré-charge les counts pour les badges de la sidebar au montage
+  // Pré-charge les compteurs au montage pour afficher les badges immédiatement
   useEffect(() => {
     getEvents()
       .then((d) => setCounts((c) => ({ ...c, events: d.length })))
@@ -80,11 +88,14 @@ export default function AdminPage() {
       .catch(() => {});
   }, []);
 
+  /**
+   * Retourne un callback de mise à jour du compteur pour une clé donnée
+   * Passé aux sous-composants via la prop onCountChange
+   * @param {"events"|"personalities"|"users"} key
+   */
   function setCount(key) {
     return (n) => setCounts((c) => ({ ...c, [key]: n }));
   }
-
-  // ─── Render ──────────────────────────────────────────────────────────────
 
   return (
     <div className="admin-layout page-fade">
@@ -105,6 +116,7 @@ export default function AdminPage() {
             >
               <span className="admin-nav-icon">{icon}</span>
               <span className="admin-nav-label">{label}</span>
+              {/* Badge avec le nombre d'éléments dans chaque section */}
               <span className="admin-nav-count">{counts[key]}</span>
             </button>
           ))}
@@ -115,7 +127,7 @@ export default function AdminPage() {
         </div>
       </aside>
 
-      {/* ── Main ─────────────────────────────────────────────────────────────── */}
+      {/* ── Contenu principal selon l'onglet actif ────────────────────────────── */}
       <main className="admin-main">
         {activeTab === "events" && (
           <AdminEvents onCountChange={setCount("events")} />

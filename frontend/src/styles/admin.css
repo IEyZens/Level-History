@@ -12,6 +12,7 @@
    SIDEBAR
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* Sidebar fixe sur la gauche, hauteur pleine page sous la navbar */
 .admin-sidebar {
   width: 220px;
   flex-shrink: 0;
@@ -48,6 +49,7 @@
   color: var(--color-text);
 }
 
+/* Navigation verticale de la sidebar */
 .admin-nav {
   display: flex;
   flex-direction: column;
@@ -86,6 +88,7 @@
   color: var(--color-text);
   background: var(--color-surface);
 }
+/* Élément actif avec bordure et fond distinct */
 .admin-nav-item--active {
   color: var(--color-text);
   background: var(--color-surface);
@@ -106,6 +109,7 @@
   flex: 1;
 }
 
+/* Badge de compteur sur les items de navigation */
 .admin-nav-count {
   font-size: 0.75rem;
   font-weight: 600;
@@ -118,12 +122,14 @@
   min-width: 22px;
   text-align: center;
 }
+/* Inversé sur l'item actif */
 .admin-nav-item--active .admin-nav-count {
   background: var(--color-text);
   color: var(--color-bg);
   border-color: var(--color-text);
 }
 
+/* Pied de sidebar — date d'inscription */
 .admin-sidebar-footer {
   margin-top: auto;
   padding-top: 1.5rem;
@@ -137,15 +143,17 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   MAIN CONTENT AREA
+   ZONE DE CONTENU PRINCIPALE
    ───────────────────────────────────────────────────────────────────────────── */
 
 .admin-main {
   flex: 1;
   padding: 2rem 2.5rem;
-  min-width: 0;
+  min-width: 0; /* Empêche le débordement flex sur les contenus larges */
   overflow-y: auto;
 }
+
+/* Grille formulaire + liste côte à côte */
 .admin-content-grid {
   display: grid;
   grid-template-columns: 420px 1fr;
@@ -154,9 +162,10 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   FORM PANEL
+   PANNEAU FORMULAIRE
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* Panneau collant qui reste visible lors du scroll de la liste */
 .admin-form-panel {
   background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
@@ -192,6 +201,7 @@
   color: var(--color-text-muted);
 }
 
+/* Badge indiquant l'élément en cours d'édition */
 .admin-editing-badge {
   display: inline-flex;
   align-items: center;
@@ -215,6 +225,7 @@
   flex-direction: column;
   gap: 1rem;
 }
+/* Grille à deux colonnes pour les champs courts */
 .admin-form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -237,6 +248,7 @@
   display: block;
 }
 
+/* Aperçu image dans le formulaire */
 .admin-image-preview {
   width: 100%;
   height: 120px;
@@ -265,7 +277,7 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   LIST PANEL
+   PANNEAU LISTE
    ───────────────────────────────────────────────────────────────────────────── */
 
 .admin-list-panel {
@@ -318,12 +330,14 @@
 .admin-list-item:hover {
   background: var(--color-surface);
 }
+/* Surlignage de l'item en cours d'édition avec un accent gauche */
 .admin-list-item--editing {
   background: var(--color-surface);
   border-left: 3px solid var(--color-text);
 }
 
-/* Item image */
+/* ── Image de l'item ──────────────────────────────────────────────────────── */
+
 .admin-list-item-img {
   width: 44px;
   height: 44px;
@@ -341,6 +355,7 @@
   object-fit: cover;
   display: block;
 }
+/* Fallback si pas d'image */
 .admin-list-item-img-placeholder {
   width: 100%;
   height: 100%;
@@ -354,6 +369,7 @@
   width: 18px;
   height: 18px;
 }
+/* Variante ronde pour les avatars utilisateurs — affiche l'initiale */
 .admin-list-item-img-placeholder--round {
   background: var(--color-surface);
   font-size: 1rem;
@@ -362,10 +378,11 @@
   font-family: var(--font-body);
 }
 
-/* Item info */
+/* ── Infos de l'item ──────────────────────────────────────────────────────── */
+
 .admin-list-item-info {
   flex: 1;
-  min-width: 0;
+  min-width: 0; /* Permet la troncature du texte en flex */
 }
 .admin-list-item-title {
   font-family: var(--font-body);
@@ -389,7 +406,7 @@
   font-family: var(--font-body);
 }
 
-/* Category pill */
+/* Pill de catégorie dans les items de liste */
 .admin-category-pill {
   font-size: 0.72rem !important;
   font-weight: 500 !important;
@@ -403,7 +420,7 @@
   color: var(--color-text-muted) !important;
 }
 
-/* Role badge */
+/* Badge de rôle — inversé pour ADMIN, discret pour USER */
 .admin-role-badge {
   font-size: 0.68rem;
   font-weight: 700;
@@ -425,7 +442,8 @@
   border: 1px solid var(--color-border);
 }
 
-/* Action buttons */
+/* ── Boutons d'action (éditer / supprimer) ───────────────────────────────── */
+
 .admin-list-item-actions {
   display: flex;
   gap: 0.35rem;
@@ -457,6 +475,7 @@
   border-color: var(--color-border-strong);
   background: var(--color-surface);
 }
+/* Bouton supprimer — couleur danger, fond au hover */
 .admin-action-btn--delete {
   color: var(--color-danger);
   border-color: transparent;
@@ -466,7 +485,7 @@
   border-color: var(--color-danger);
 }
 
-/* Empty / loading states */
+/* États vides et chargement */
 .admin-loading,
 .admin-empty {
   padding: 2.5rem 1.5rem;
@@ -476,7 +495,7 @@
   font-family: var(--font-body);
 }
 
-/* Legacy tabs (conservés pour compatibilité) */
+/* Onglets legacy — conservés pour compatibilité ascendante */
 .admin-tabs {
   display: flex;
   gap: 0.2rem;
@@ -496,7 +515,7 @@
   transition: all var(--transition);
   background: none;
   position: relative;
-  bottom: -1px;
+  bottom: -1px; /* Fusionne visuellement avec la bordure inférieure */
 }
 .admin-tab:hover {
   color: var(--color-text);
@@ -519,21 +538,22 @@
 }
 
 @media (max-width: 900px) {
+  /* Empile formulaire et liste verticalement */
   .admin-content-grid {
     grid-template-columns: 1fr;
   }
   .admin-form-panel {
     position: static;
   }
-  .admin-form-row {
-    grid-template-columns: 1fr;
-  }
+  /* Passe les grilles de champs en colonne unique */
+  .admin-form-row,
   .admin-form-row--3 {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
+  /* Sidebar masquée sur mobile */
   .admin-sidebar {
     display: none;
   }

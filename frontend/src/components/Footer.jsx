@@ -1,5 +1,9 @@
 import { Link } from "react-router-dom";
 
+/**
+ * Pied de page global de l'application
+ * Contient la navigation principale, les liens légaux et le copyright
+ */
 export default function Footer() {
   return (
     <footer className="footer">

@@ -1,8 +1,18 @@
 import { useState } from "react";
 
+/**
+ * Composant accordéon — affiche une liste de questions/réponses
+ * Un seul item peut être ouvert à la fois
+ * @param {{ items: Array<{ question: string, answer: string }> }} props
+ */
 export default function Accordion({ items }) {
+  // Index de l'item actuellement ouvert, null si tous fermés
   const [openIndex, setOpenIndex] = useState(null);
 
+  /**
+   * Bascule l'ouverture d'un item
+   * Ferme l'item si déjà ouvert, ouvre le nouveau sinon
+   */
   function handleToggle(index) {
     setOpenIndex(openIndex === index ? null : index);
   }
