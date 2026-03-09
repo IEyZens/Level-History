@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { deleteUser, getAllUsers, updateUser } from "../api/users";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -32,7 +32,7 @@ export default function AdminUsers({ onCountChange }) {
 
   // ─── Data ──────────────────────────────────────────────────────────────────
 
-  async function fetchUsers() {
+  const fetchUsers = useCallback(async () => {
     try {
       const data = await getAllUsers();
       setUsers(data);
@@ -42,11 +42,13 @@ export default function AdminUsers({ onCountChange }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [onCountChange]);
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    {
+      fetchUsers();
+    }
+  }, [fetchUsers]);
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createEvent,
   deleteEvent,
@@ -63,7 +63,7 @@ export default function AdminEvents({ onCountChange }) {
 
   // ─── Data ──────────────────────────────────────────────────────────────────
 
-  async function fetchEvents() {
+  const fetchEvents = useCallback(async () => {
     try {
       const data = await getEvents();
       setEvents(data);
@@ -73,11 +73,13 @@ export default function AdminEvents({ onCountChange }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [onCountChange]);
 
   useEffect(() => {
-    fetchEvents();
-  }, []);
+    {
+      fetchEvents();
+    }
+  }, [fetchEvents]);
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 

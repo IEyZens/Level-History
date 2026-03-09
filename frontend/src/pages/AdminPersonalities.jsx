@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createPersonality,
   deletePersonality,
@@ -71,7 +71,7 @@ export default function AdminPersonalities({ onCountChange }) {
 
   // ─── Data ──────────────────────────────────────────────────────────────────
 
-  async function fetchPersonalities() {
+  const fetchPersonalities = useCallback(async () => {
     try {
       const data = await getPersonalities();
       setPersonalities(data);
@@ -81,11 +81,13 @@ export default function AdminPersonalities({ onCountChange }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [onCountChange]);
 
   useEffect(() => {
-    fetchPersonalities();
-  }, []);
+    {
+      fetchPersonalities();
+    }
+  }, [fetchPersonalities]);
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
