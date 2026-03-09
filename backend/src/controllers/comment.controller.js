@@ -1,5 +1,9 @@
 import prisma from "../lib/prisma.js";
 
+/**
+ * Crée un nouveau commentaire sur un événement
+ * Nécessite d'être authentifié (middleware verifyToken)
+ */
 export const createComment = async (req, res) => {
   try {
     const eventId = Number(req.params.id);
@@ -32,7 +36,7 @@ export const createComment = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    // P2003 = violation de clé étrangère (événement inexistant)
     if (error.code === "P2003") {
       return res.status(404).json({ error: "Event not found" });
     }
@@ -40,6 +44,10 @@ export const createComment = async (req, res) => {
   }
 };
 
+/**
+ * Récupère tous les commentaires d'un événement
+ * Inclut les informations de l'auteur et le nombre de likes
+ */
 export const getCommentsByEvent = async (req, res) => {
   try {
     const eventId = Number(req.params.id);
@@ -54,10 +62,12 @@ export const getCommentsByEvent = async (req, res) => {
         author: {
           select: { id: true, username: true, role: true },
         },
+        // Compte le nombre de likes par commentaire
         _count: {
           select: { likes: true },
         },
       },
+      // Du plus récent au plus ancien
       orderBy: {
         createdAt: "desc",
       },
@@ -65,11 +75,14 @@ export const getCommentsByEvent = async (req, res) => {
 
     res.status(200).json(comments);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
+/**
+ * Supprime un commentaire par son ID
+ * Nécessite les droits admin (middleware isAdmin)
+ */
 export const deleteComment = async (req, res) => {
   try {
     const commentId = Number(req.params.id);
@@ -84,7 +97,7 @@ export const deleteComment = async (req, res) => {
 
     res.status(200).json({ message: "Comment deleted successfully" });
   } catch (error) {
-    console.error(error);
+    // P2025 = enregistrement introuvable
     if (error.code === "P2025") {
       return res.status(404).json({ error: "Comment not found" });
     }
@@ -92,6 +105,9 @@ export const deleteComment = async (req, res) => {
   }
 };
 
+/**
+ * Met à jour le contenu d'un commentaire existant
+ */
 export const updateComment = async (req, res) => {
   try {
     const commentId = Number(req.params.id);
@@ -103,9 +119,7 @@ export const updateComment = async (req, res) => {
 
     const updatedComment = await prisma.comment.update({
       where: { id: commentId },
-      data: {
-        content,
-      },
+      data: { content },
     });
 
     res.status(200).json({
@@ -113,7 +127,7 @@ export const updateComment = async (req, res) => {
       data: updatedComment,
     });
   } catch (error) {
-    console.error(error);
+    // P2025 = enregistrement introuvable
     if (error.code === "P2025") {
       return res.status(404).json({ error: "Comment not found" });
     }

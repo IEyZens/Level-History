@@ -1,9 +1,13 @@
 import bcrypt from "bcryptjs";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import app from "../app.js"; // ✅ Correction ici
-import prisma from "../lib/prisma.js"; // ✅ Correction ici aussi
+import app from "../app.js";
+import prisma from "../lib/prisma.js";
 
+/**
+ * Suite de tests A01 — Contrôle d'accès et vérification de propriété
+ * Couvre : modification/suppression de commentaires par propriétaire, admin et tiers
+ */
 describe("A01 - Access Control Tests", () => {
   let normalUserCookie;
   let adminUserCookie;
@@ -15,6 +19,7 @@ describe("A01 - Access Control Tests", () => {
   let normalUserComment;
   let otherUserComment;
 
+  // Timestamp unique pour éviter les conflits entre les runs de tests
   const timestamp = Date.now();
 
   const normalUser = {
@@ -36,7 +41,7 @@ describe("A01 - Access Control Tests", () => {
   };
 
   beforeAll(async () => {
-    // Nettoyer les utilisateurs existants
+    // Supprimer les utilisateurs résiduels d'un run précédent
     await prisma.user.deleteMany({
       where: {
         email: {
@@ -45,7 +50,7 @@ describe("A01 - Access Control Tests", () => {
       },
     });
 
-    // Créer les utilisateurs de test
+    // Créer les trois utilisateurs de test avec leurs rôles respectifs
     const hashedPassword = await bcrypt.hash("Password123!", 10);
 
     const createdNormalUser = await prisma.user.create({
@@ -78,7 +83,7 @@ describe("A01 - Access Control Tests", () => {
     });
     otherUserId = createdOtherUser.id;
 
-    // Se connecter avec chaque utilisateur
+    // Authentifier chaque utilisateur et récupérer leurs cookies de session
     const normalUserLogin = await request(app).post("/auth/login").send({
       email: normalUser.email,
       password: normalUser.password,
@@ -97,7 +102,7 @@ describe("A01 - Access Control Tests", () => {
     });
     otherUserCookie = otherUserLogin.headers["set-cookie"];
 
-    // Créer un événement de test (par l'admin)
+    // Créer un événement de test rattaché à l'admin
     testEvent = await prisma.event.create({
       data: {
         title: "Test Event for Access Control",
@@ -107,7 +112,7 @@ describe("A01 - Access Control Tests", () => {
       },
     });
 
-    // Créer des commentaires de test
+    // Créer un commentaire par l'utilisateur normal et un par l'autre utilisateur
     normalUserComment = await prisma.comment.create({
       data: {
         content: "Comment by normal user",
@@ -126,11 +131,9 @@ describe("A01 - Access Control Tests", () => {
   });
 
   afterAll(async () => {
-    // Nettoyer les données de test
+    // Nettoyage dans l'ordre des contraintes de clé étrangère
     await prisma.comment.deleteMany({
-      where: {
-        eventId: testEvent.id,
-      },
+      where: { eventId: testEvent.id },
     });
 
     await prisma.event.delete({
@@ -139,9 +142,7 @@ describe("A01 - Access Control Tests", () => {
 
     await prisma.user.deleteMany({
       where: {
-        id: {
-          in: [normalUserId, adminUserId, otherUserId],
-        },
+        id: { in: [normalUserId, adminUserId, otherUserId] },
       },
     });
 
@@ -149,47 +150,45 @@ describe("A01 - Access Control Tests", () => {
   });
 
   describe("Comment Ownership Tests", () => {
+    // Un utilisateur peut modifier son propre commentaire
     it("Should allow user to update their own comment", async () => {
       const response = await request(app)
         .put(`/comments/${normalUserComment.id}`)
         .set("Cookie", normalUserCookie)
-        .send({
-          content: "Updated content by owner",
-        });
+        .send({ content: "Updated content by owner" });
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe("success");
       expect(response.body.data.content).toBe("Updated content by owner");
     });
 
+    // Un utilisateur ne peut pas modifier le commentaire d'un autre
     it("Should NOT allow user to update another user's comment", async () => {
       const response = await request(app)
         .put(`/comments/${otherUserComment.id}`)
         .set("Cookie", normalUserCookie)
-        .send({
-          content: "Trying to hack!",
-        });
+        .send({ content: "Trying to hack!" });
 
       expect(response.status).toBe(403);
       expect(response.body.error).toBeDefined();
       expect(response.body.error).toContain("permission");
     });
 
+    // Un admin peut modifier n'importe quel commentaire
     it("Should allow admin to update any comment", async () => {
       const response = await request(app)
         .put(`/comments/${normalUserComment.id}`)
         .set("Cookie", adminUserCookie)
-        .send({
-          content: "Admin changed this",
-        });
+        .send({ content: "Admin changed this" });
 
       expect(response.status).toBe(200);
       expect(response.body.status).toBe("success");
       expect(response.body.data.content).toBe("Admin changed this");
     });
 
+    // Un utilisateur peut supprimer son propre commentaire
     it("Should allow user to delete their own comment", async () => {
-      // Créer un commentaire temporaire
+      // Commentaire temporaire créé spécifiquement pour ce test
       const tempComment = await prisma.comment.create({
         data: {
           content: "Temporary comment to delete",
@@ -205,13 +204,14 @@ describe("A01 - Access Control Tests", () => {
       expect(response.status).toBe(200);
       expect(response.body.message).toContain("deleted");
 
-      // Vérifier que le commentaire n'existe plus
+      // Vérifier la suppression effective en base
       const deletedComment = await prisma.comment.findUnique({
         where: { id: tempComment.id },
       });
       expect(deletedComment).toBeNull();
     });
 
+    // Un utilisateur ne peut pas supprimer le commentaire d'un autre
     it("Should NOT allow user to delete another user's comment", async () => {
       const response = await request(app)
         .delete(`/comments/${otherUserComment.id}`)
@@ -221,8 +221,8 @@ describe("A01 - Access Control Tests", () => {
       expect(response.body.error).toBeDefined();
     });
 
+    // Un admin peut supprimer n'importe quel commentaire
     it("Should allow admin to delete any comment", async () => {
-      // Créer un commentaire temporaire
       const tempComment = await prisma.comment.create({
         data: {
           content: "Temporary comment for admin to delete",
@@ -237,7 +237,7 @@ describe("A01 - Access Control Tests", () => {
 
       expect(response.status).toBe(200);
 
-      // Vérifier que le commentaire n'existe plus
+      // Vérifier la suppression effective en base
       const deletedComment = await prisma.comment.findUnique({
         where: { id: tempComment.id },
       });
@@ -246,35 +246,32 @@ describe("A01 - Access Control Tests", () => {
   });
 
   describe("Edge Cases", () => {
+    // ID non numérique → 400
     it("Should return 400 for invalid comment ID", async () => {
       const response = await request(app)
         .put("/comments/invalid-id")
         .set("Cookie", normalUserCookie)
-        .send({
-          content: "Test content",
-        });
+        .send({ content: "Test content" });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toContain("Invalid ID");
     });
 
+    // Requête sans cookie d'authentification → 401
     it("Should return 401 for unauthenticated request", async () => {
       const response = await request(app)
         .put(`/comments/${normalUserComment.id}`)
-        .send({
-          content: "Trying without auth",
-        });
+        .send({ content: "Trying without auth" });
 
       expect(response.status).toBe(401);
     });
 
+    // Commentaire inexistant → 404
     it("Should return 404 for non-existent comment", async () => {
       const response = await request(app)
         .put("/comments/999999")
         .set("Cookie", normalUserCookie)
-        .send({
-          content: "Test content",
-        });
+        .send({ content: "Test content" });
 
       expect(response.status).toBe(404);
       expect(response.body.error).toContain("not found");

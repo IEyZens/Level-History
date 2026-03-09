@@ -1,19 +1,15 @@
 import { z } from "zod";
 
 /**
- * Middleware de validation avec Zod
- * @param {z.ZodSchema} schema - Le schéma Zod à valider
+ * Middleware de validation du corps de la requête avec Zod
+ * Remplace req.body par les données validées et transformées par le schéma
+ * @param {z.ZodSchema} schema - Le schéma Zod à appliquer
  * @returns {Function} Middleware Express
  */
 export const validate = (schema) => {
   return (req, res, next) => {
     try {
-      // Valider req.body avec le schéma
-      const validated = schema.parse(req.body);
-
-      // Remplacer req.body par les données validées et transformées
-      req.body = validated;
-
+      req.body = schema.parse(req.body);
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -25,22 +21,21 @@ export const validate = (schema) => {
           .status(400)
           .json({ error: "Validation failed", details: errors });
       }
-
-      // Ajoute ce log pour voir la vraie erreur :
-      console.error("Validate middleware non-Zod error:", error);
-
       return res.status(500).json({ error: "Internal Server Error" });
     }
   };
 };
 
+/**
+ * Middleware de validation des paramètres de route avec Zod
+ * Remplace req.params par les données validées et transformées par le schéma
+ * @param {z.ZodSchema} schema - Le schéma Zod à appliquer
+ * @returns {Function} Middleware Express
+ */
 export const validateParams = (schema) => {
   return (req, res, next) => {
     try {
-      const validated = schema.parse(req.params);
-
-      req.params = validated;
-
+      req.params = schema.parse(req.params);
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -48,25 +43,26 @@ export const validateParams = (schema) => {
           field: err.path.join("."),
           message: err.message,
         }));
-
         return res.status(400).json({
           error: "Invalid route parameter",
           details: errors,
         });
       }
-
       return res.status(500).json({ error: "Internal Server Error" });
     }
   };
 };
 
+/**
+ * Middleware de validation des paramètres de requête (query string) avec Zod
+ * Remplace req.query par les données validées et transformées par le schéma
+ * @param {z.ZodSchema} schema - Le schéma Zod à appliquer
+ * @returns {Function} Middleware Express
+ */
 export const validateQuery = (schema) => {
   return (req, res, next) => {
     try {
-      const validated = schema.parse(req.query);
-
-      req.query = validated;
-
+      req.query = schema.parse(req.query);
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -74,13 +70,11 @@ export const validateQuery = (schema) => {
           field: err.path.join("."),
           message: err.message,
         }));
-
         return res.status(400).json({
           error: "Invalid query parameter",
           details: errors,
         });
       }
-
       return res.status(500).json({ error: "Internal Server Error" });
     }
   };

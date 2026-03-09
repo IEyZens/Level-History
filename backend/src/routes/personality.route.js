@@ -18,9 +18,13 @@ import {
 
 const router = express.Router();
 
+// Récupère toutes les personnalités
 router.get("/", getAllPersonalities);
+
+// Récupère une personnalité par son ID
 router.get("/:id", validateParams(idParamSchema), getPersonalityById);
 
+// Crée une nouvelle personnalité avec upload d'image (admin uniquement)
 router.post(
   "/",
   verifyToken,
@@ -30,6 +34,8 @@ router.post(
   validate(createPersonalitySchema),
   createPersonality,
 );
+
+// Met à jour une personnalité complète avec upload d'image optionnel (admin uniquement)
 router.put(
   "/:id",
   verifyToken,
@@ -40,6 +46,8 @@ router.put(
   validate(updatePersonalitySchema),
   updatePersonality,
 );
+
+// Met à jour partiellement une personnalité avec upload d'image optionnel (admin uniquement)
 router.patch(
   "/:id",
   verifyToken,
@@ -50,6 +58,8 @@ router.patch(
   validate(updatePersonalitySchema),
   updatePersonality,
 );
+
+// Supprime une personnalité et son image associée (admin uniquement)
 router.delete(
   "/:id",
   verifyToken,

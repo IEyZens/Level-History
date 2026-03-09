@@ -16,7 +16,10 @@ import { idParamSchema } from "../validators/params.validator.js";
 
 const router = express.Router();
 
+// Récupère tous les commentaires d'un événement
 router.get("/event/:id", validateParams(idParamSchema), getCommentsByEvent);
+
+// Crée un commentaire sur un événement (authentification requise)
 router.post(
   "/event/:id",
   verifyToken,
@@ -24,6 +27,8 @@ router.post(
   validate(createCommentSchema),
   createComment,
 );
+
+// Met à jour un commentaire (authentification + propriété requises)
 router.put(
   "/:id",
   verifyToken,
@@ -32,6 +37,8 @@ router.put(
   validate(updateCommentSchema),
   updateComment,
 );
+
+// Supprime un commentaire (authentification + propriété requises)
 router.delete(
   "/:id",
   verifyToken,

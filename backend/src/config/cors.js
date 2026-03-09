@@ -1,14 +1,20 @@
+/**
+ * Génère la configuration CORS selon les origines autorisées et l'environnement
+ * @param {string[]} allowedOrigins - Liste des origines autorisées
+ * @param {string} env - Environnement actuel (test, development, production)
+ * @returns {Object} Configuration CORS pour Express
+ */
 export const getCorsConfig = (allowedOrigins, env) => {
   return {
     origin: (origin, callback) => {
-      // Always allow in test environment
+      // Toujours autoriser en environnement de test
       if (env === "test") {
         return callback(null, true);
       }
 
-      // No origin (Postman, curl, etc.)
+      // Pas d'origine (Postman, curl, etc.)
       if (!origin) {
-        // Allow in development, block in production
+        // Autoriser en développement, bloquer en production
         if (env === "development") {
           return callback(null, true);
         } else {
@@ -16,12 +22,10 @@ export const getCorsConfig = (allowedOrigins, env) => {
         }
       }
 
-      // Check if origin is in allowed list
+      // Vérifier si l'origine est dans la liste autorisée
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
-        console.error(`CORS blocked: ${origin}`);
-        console.error(`Allowed origins: ${allowedOrigins.join(", ")}`);
         return callback(new Error("Not allowed by CORS"));
       }
     },
@@ -29,6 +33,6 @@ export const getCorsConfig = (allowedOrigins, env) => {
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
     exposedHeaders: ["Set-Cookie"],
-    maxAge: 86400, // 24 hours
+    maxAge: 86400, // 24 heures
   };
 };

@@ -4,9 +4,9 @@ import config from "../config/env.js";
 import prisma from "../lib/prisma.js";
 
 /**
- * Parse duration string to milliseconds
- * @param {string} duration - Duration string like "7d", "24h", "30m", "60s"
- * @returns {number} Duration in milliseconds
+ * Convertit une chaîne de durée en millisecondes
+ * @param {string} duration - Durée au format "7d", "24h", "30m" ou "60s"
+ * @returns {number} Durée en millisecondes
  */
 function parseDuration(duration) {
   const regex = /^(\d+)([dhms])$/;
@@ -20,36 +20,49 @@ function parseDuration(duration) {
   const unit = match[2];
 
   const multipliers = {
-    d: 24 * 60 * 60 * 1000, // days
-    h: 60 * 60 * 1000, // hours
+    d: 24 * 60 * 60 * 1000, // jours
+    h: 60 * 60 * 1000, // heures
     m: 60 * 1000, // minutes
-    s: 1000, // seconds
+    s: 1000, // secondes
   };
 
   return value * multipliers[unit];
 }
 
+/**
+ * Génère un token d'accès et un refresh token, les pose en cookies httpOnly
+ * et persiste le refresh token haché en base avec sa date d'expiration
+ * Nettoie également les refresh tokens expirés de l'utilisateur
+ * @param {number} userId   - ID de l'utilisateur
+ * @param {string} userRole - Rôle de l'utilisateur (USER | ADMIN)
+ * @param {Object} res      - Objet réponse Express
+ * @returns {{ accessToken: string, refreshToken: string }}
+ */
 export const generateTokens = async (userId, userRole, res) => {
+  // ── Token d'accès ────────────────────────────────────────────────────────────
+
   const accessPayload = { id: userId, role: userRole };
   const accessToken = jwt.sign(accessPayload, config.JWT_SECRET, {
     expiresIn: config.JWT_EXPIRES_IN,
   });
 
-  const accessMaxAge = parseDuration(config.JWT_EXPIRES_IN);
-
   res.cookie("jwt", accessToken, {
     httpOnly: true,
     secure: config.COOKIE_SECURE,
+    // SameSite strict en production pour limiter les attaques CSRF
     sameSite: config.NODE_ENV === "production" ? "strict" : "lax",
-    maxAge: accessMaxAge,
+    maxAge: parseDuration(config.JWT_EXPIRES_IN),
     path: "/",
   });
+
+  // ── Refresh token ────────────────────────────────────────────────────────────
 
   const refreshPayload = { id: userId, type: "refresh" };
   const refreshToken = jwt.sign(refreshPayload, config.JWT_REFRESH_SECRET, {
     expiresIn: config.JWT_REFRESH_EXPIRES_IN,
   });
 
+  // Stocker uniquement le hash en base (le token brut ne doit pas être persisté)
   const tokenHash = crypto
     .createHash("sha256")
     .update(refreshToken)
@@ -62,27 +75,24 @@ export const generateTokens = async (userId, userRole, res) => {
   await prisma.refreshToken.create({
     data: {
       token: tokenHash,
-      userId: userId,
-      expiresAt: expiresAt,
+      userId,
+      expiresAt,
     },
   });
-
-  const refreshMaxAge = parseDuration(config.JWT_REFRESH_EXPIRES_IN);
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: config.COOKIE_SECURE,
     sameSite: config.NODE_ENV === "production" ? "strict" : "lax",
-    maxAge: refreshMaxAge,
+    maxAge: parseDuration(config.JWT_REFRESH_EXPIRES_IN),
     path: "/",
   });
 
+  // Purger les refresh tokens expirés de cet utilisateur après chaque connexion
   await prisma.refreshToken.deleteMany({
     where: {
-      userId: userId,
-      expiresAt: {
-        lt: new Date(),
-      },
+      userId,
+      expiresAt: { lt: new Date() },
     },
   });
 

@@ -5,10 +5,15 @@ import config from "../config/env.js";
 import prisma from "../lib/prisma.js";
 import { generateTokens } from "../utils/generateTokens.js";
 
+/**
+ * Inscription d'un nouvel utilisateur
+ * Vérifie l'unicité de l'email, hache le mot de passe et génère les tokens
+ */
 export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
+    // Vérifier si l'email est déjà utilisé
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -17,6 +22,7 @@ export const register = async (req, res) => {
       return res.status(400).json({ error: "Email already in use" });
     }
 
+    // Hacher le mot de passe avant stockage
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
@@ -42,7 +48,7 @@ export const register = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    // P2002 = contrainte d'unicité Prisma (username ou email déjà pris)
     if (error.code === "P2002") {
       return res.status(400).json({ error: "Username or Email already taken" });
     }
@@ -50,6 +56,10 @@ export const register = async (req, res) => {
   }
 };
 
+/**
+ * Connexion d'un utilisateur existant
+ * Vérifie les identifiants et génère les tokens d'accès et de rafraîchissement
+ */
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -58,6 +68,7 @@ export const login = async (req, res) => {
       where: { email },
     });
 
+    // Message d'erreur identique pour email et mot de passe (évite l'énumération)
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
@@ -83,16 +94,20 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
+/**
+ * Déconnexion de l'utilisateur
+ * Supprime le refresh token en base et efface les cookies d'authentification
+ */
 export const logout = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (refreshToken) {
     try {
+      // Hacher le token avant de le chercher en base (stockage sécurisé)
       const tokenHash = crypto
         .createHash("sha256")
         .update(refreshToken)
@@ -102,10 +117,11 @@ export const logout = async (req, res) => {
         where: { token: tokenHash },
       });
     } catch (error) {
-      console.error("Failed to delete refresh token:", error.message);
+      // Erreur non bloquante : on déconnecte quand même l'utilisateur
     }
   }
 
+  // Expirer les cookies côté client
   res.cookie("jwt", "", {
     httpOnly: true,
     expires: new Date(0),
@@ -122,6 +138,10 @@ export const logout = async (req, res) => {
   });
 };
 
+/**
+ * Récupère les informations de l'utilisateur connecté
+ * Nécessite un token d'accès valide (middleware verifyToken)
+ */
 export const me = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -145,11 +165,14 @@ export const me = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
+/**
+ * Renouvelle le token d'accès à partir du refresh token
+ * Implémente la rotation des refresh tokens (ancien supprimé, nouveau généré)
+ */
 export const refreshAccessToken = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
@@ -158,6 +181,7 @@ export const refreshAccessToken = async (req, res) => {
       return res.status(401).json({ error: "Refresh token required" });
     }
 
+    // Vérifier la signature et l'expiration du refresh token
     let decoded;
     try {
       decoded = jwt.verify(refreshToken, config.JWT_REFRESH_SECRET);
@@ -171,10 +195,12 @@ export const refreshAccessToken = async (req, res) => {
       }
     }
 
+    // Vérifier que le token est bien de type refresh
     if (decoded.type !== "refresh") {
       return res.status(401).json({ error: "Invalid token type" });
     }
 
+    // Hacher le token pour le comparer à celui stocké en base
     const tokenHash = crypto
       .createHash("sha256")
       .update(refreshToken)
@@ -190,6 +216,7 @@ export const refreshAccessToken = async (req, res) => {
         .json({ error: "Refresh token not found or revoked" });
     }
 
+    // Vérification supplémentaire de l'expiration en base
     if (storedToken.expiresAt < new Date()) {
       await prisma.refreshToken.delete({
         where: { id: storedToken.id },
@@ -197,6 +224,7 @@ export const refreshAccessToken = async (req, res) => {
       return res.status(401).json({ error: "Refresh token expired" });
     }
 
+    // Rotation : supprimer l'ancien token avant d'en générer un nouveau
     await prisma.refreshToken.delete({
       where: { id: storedToken.id },
     });
@@ -211,14 +239,13 @@ export const refreshAccessToken = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const tokens = await generateTokens(user.id, user.role, res);
+    await generateTokens(user.id, user.role, res);
 
     return res.status(200).json({
       status: "success",
       message: "Tokens refreshed successfully",
     });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };

@@ -17,8 +17,13 @@ import { idParamSchema } from "../validators/params.validator.js";
 
 const router = express.Router();
 
+// Récupère tous les événements
 router.get("/", getEvents);
+
+// Récupère un événement par son ID
 router.get("/:id", validateParams(idParamSchema), getEventById);
+
+// Crée un nouvel événement (admin uniquement)
 router.post(
   "/",
   verifyToken,
@@ -26,6 +31,8 @@ router.post(
   validate(createEventSchema),
   createEvent,
 );
+
+// Met à jour un événement complet (admin uniquement)
 router.put(
   "/:id",
   verifyToken,
@@ -34,6 +41,8 @@ router.put(
   validate(updateEventSchema),
   updateEvent,
 );
+
+// Met à jour partiellement un événement (admin uniquement)
 router.patch(
   "/:id",
   verifyToken,
@@ -42,6 +51,8 @@ router.patch(
   validate(updateEventSchema),
   updateEvent,
 );
+
+// Supprime un événement (admin uniquement)
 router.delete(
   "/:id",
   verifyToken,

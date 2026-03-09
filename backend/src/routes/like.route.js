@@ -6,6 +6,7 @@ import { likeParamsSchema } from "../validators/params.validator.js";
 
 const router = express.Router();
 
+// Bascule le like d'un utilisateur sur un événement ou un commentaire (authentification requise)
 router.post(
   "/:type/:id",
   verifyToken,
