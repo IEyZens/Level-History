@@ -34,7 +34,12 @@ export const createEventSchema = z.object({
     ])
     .optional(),
 
-  image: z.string().url("Image must be a valid URL").optional().nullable(),
+  image: z
+    .string()
+    .transform((val) => (val === "" ? null : val))
+    .pipe(z.string().url("Image must be a valid URL").optional().nullable())
+    .optional()
+    .nullable(),
 });
 
 /**
@@ -73,5 +78,10 @@ export const updateEventSchema = z.object({
     ])
     .optional(),
 
-  image: z.string().url("Image must be a valid URL").optional().nullable(),
+  image: z
+    .string()
+    .transform((val) => (val === "" ? null : val))
+    .pipe(z.string().url("Image must be a valid URL").optional().nullable())
+    .optional()
+    .nullable(),
 });
