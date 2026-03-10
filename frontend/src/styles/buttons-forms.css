@@ -1,7 +1,8 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   BUTTONS
+   BOUTONS
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* Base commune à tous les boutons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -23,6 +24,7 @@
   outline-offset: 2px;
 }
 
+/* Fond plein — action principale */
 .btn-primary {
   background: var(--color-text);
   color: var(--color-bg);
@@ -32,6 +34,7 @@
   opacity: 0.82;
 }
 
+/* Contour discret — action secondaire */
 .btn-outline {
   background: transparent;
   color: var(--color-text-muted);
@@ -42,6 +45,7 @@
   border-color: var(--color-border-strong);
 }
 
+/* Contour fort — action secondaire accentuée, fond plein au hover */
 .btn-outline-dark {
   background: transparent;
   color: var(--color-text);
@@ -52,6 +56,7 @@
   color: var(--color-bg);
 }
 
+/* Contour blanc semi-transparent — utilisé sur fonds sombres (hero, CTA) */
 .btn-outline-white {
   display: inline-flex;
   align-items: center;
@@ -74,6 +79,7 @@
   border-color: white;
 }
 
+/* Bouton destructif — suppression */
 .btn-danger {
   background: var(--color-danger);
   color: white;
@@ -84,7 +90,7 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   FORMS
+   FORMULAIRES
    ───────────────────────────────────────────────────────────────────────────── */
 
 .form-group {
@@ -101,6 +107,7 @@
   font-family: var(--font-body);
 }
 
+/* Champ de saisie générique (input, textarea, select) */
 .form-input {
   background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
@@ -119,6 +126,7 @@
   border-color: var(--color-border-strong);
   box-shadow: 0 0 0 3px rgba(22, 22, 20, 0.06);
 }
+/* Halo de focus adapté au thème sombre */
 [data-theme="dark"] .form-input:focus {
   box-shadow: 0 0 0 3px rgba(236, 234, 230, 0.07);
 }
@@ -133,6 +141,7 @@
   cursor: pointer;
 }
 
+/* Select avec chevron SVG encodé en base64 à la place du style natif */
 select.form-input {
   cursor: pointer;
   appearance: none;
@@ -149,7 +158,7 @@ select.form-input {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   ALERTS
+   ALERTES
    ───────────────────────────────────────────────────────────────────────────── */
 
 .alert {
@@ -171,7 +180,7 @@ select.form-input {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   CARD (générique)
+   CARTE GÉNÉRIQUE
    ───────────────────────────────────────────────────────────────────────────── */
 
 .card {
@@ -184,13 +193,14 @@ select.form-input {
     box-shadow var(--transition-med),
     transform var(--transition-med);
 }
+/* Légère élévation au hover */
 .card:hover {
   box-shadow: var(--shadow-hover);
   transform: translateY(-2px);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   LIKE BUTTON
+   BOUTON LIKE
    ───────────────────────────────────────────────────────────────────────────── */
 
 .like-btn {
@@ -211,6 +221,7 @@ select.form-input {
 .like-btn svg {
   width: 18px;
   height: 18px;
+  /* Rebond élastique au hover + transition couleur */
   transition:
     transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
     fill 0.18s ease;
@@ -218,6 +229,7 @@ select.form-input {
 .like-btn:not(:disabled):hover svg {
   transform: scale(1.2);
 }
+/* Désactivé si l'utilisateur n'est pas connecté */
 .like-btn:disabled {
   cursor: not-allowed;
   opacity: 0.45;

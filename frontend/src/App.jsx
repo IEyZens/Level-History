@@ -5,6 +5,10 @@ import Navbar from "./components/Navbar";
 import AuthProvider from "./context/AuthContext";
 import AppRouter from "./router/AppRouter";
 
+/**
+ * Remonte automatiquement en haut de page à chaque changement de route
+ * Monté en dehors du routeur pour réagir à pathname sans rendu visible
+ */
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -13,6 +17,10 @@ function ScrollToTop() {
   return null;
 }
 
+/**
+ * Racine de l'application
+ * Enveloppe l'arbre dans AuthProvider et compose la structure navbar / contenu / footer
+ */
 function App() {
   return (
     <AuthProvider>

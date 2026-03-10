@@ -1,14 +1,17 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   FONTS
+   POLICES
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* DM Serif Display (titres) + DM Sans (corps) */
 @import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap");
+/* Pacifico (logo) */
 @import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   TOKENS — THEMES
+   TOKENS — THÈMES
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* Thème clair — fond chaud ivoire, texte quasi-noir */
 [data-theme="light"] {
   --color-bg: #f8f7f5;
   --color-bg-alt: #f0eeeb;
@@ -31,6 +34,7 @@
   --color-overlay: rgba(22, 22, 20, 0.55);
 }
 
+/* Thème sombre — fond charbon, texte ivoire */
 [data-theme="dark"] {
   --color-bg: #111110;
   --color-bg-alt: #191917;
@@ -58,22 +62,27 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 :root {
+  /* Typographie */
   --font-display: "DM Serif Display", Georgia, serif;
   --font-body: "DM Sans", "Helvetica Neue", sans-serif;
   --font-logo: "Pacifico", cursive;
 
+  /* Rayons de bordure — 4 paliers */
   --radius-sm: 3px;
   --radius: 6px;
   --radius-lg: 12px;
   --radius-xl: 18px;
 
+  /* Durées de transition — 3 vitesses */
   --transition: 0.16s ease;
   --transition-med: 0.28s ease;
   --transition-slow: 0.4s ease;
 
+  /* Mise en page */
   --navbar-height: 62px;
   --max-width: 1120px;
 
+  /* Ombres portées */
   --shadow-sm: 0 1px 4px var(--color-card-shadow);
   --shadow: 0 3px 14px var(--color-card-shadow);
   --shadow-hover: 0 8px 28px var(--color-card-shadow-hover);
@@ -97,6 +106,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Transition de thème sur fond et couleur de texte */
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
@@ -132,6 +142,7 @@ select {
   color: inherit;
   background: none;
 }
+/* Textarea auto-redimensionnable via JS (useAutoResize) */
 textarea {
   resize: none;
   overflow: hidden;
@@ -173,6 +184,7 @@ h6 {
    LAYOUT
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* Décale le contenu sous la navbar fixe */
 .main-content {
   padding-top: var(--navbar-height);
   min-height: calc(100vh - var(--navbar-height));
@@ -184,6 +196,7 @@ h6 {
   padding: 2rem 1.5rem;
 }
 
+/* Section pleine largeur avec inner centré */
 .section {
   padding: 5.5rem 1.5rem;
 }
@@ -193,6 +206,7 @@ h6 {
   text-align: center;
 }
 
+/* Label de section — surtitre en capslock espacé */
 .section-label {
   font-family: var(--font-body);
   font-size: 0.7rem;
@@ -207,7 +221,7 @@ h6 {
 
 .section-title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-size: clamp(2rem, 4.5vw, 3rem); /* Fluide entre mobile et desktop */
   color: var(--color-text);
   font-weight: 400;
 }
@@ -221,7 +235,7 @@ h6 {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   PAGE TRANSITIONS
+   TRANSITIONS DE PAGE
    ───────────────────────────────────────────────────────────────────────────── */
 
 @keyframes fadeInPage {
@@ -235,12 +249,14 @@ h6 {
   }
 }
 
+/* Appliqué sur chaque page au montage */
 .page-fade {
   animation: fadeInPage 0.32s ease forwards;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   VIEW TRANSITIONS (theme toggle animation)
+   VIEW TRANSITIONS (animation de bascule de thème)
+   Désactive les animations par défaut pour laisser le JS gérer le clip-path
    ───────────────────────────────────────────────────────────────────────────── */
 
 ::view-transition-old(root),

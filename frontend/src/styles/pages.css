@@ -2,6 +2,7 @@
    HOME PAGE
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* Hero centré avec titre fluide */
 .home-hero {
   text-align: center;
   padding: 8rem 1.5rem 5rem;
@@ -32,6 +33,7 @@
   justify-content: center;
 }
 
+/* Bannière photo pleine largeur sous le hero */
 .home-banner {
   width: 100%;
   max-width: var(--max-width);
@@ -57,6 +59,7 @@
   font-family: var(--font-body);
   margin-bottom: 2rem;
 }
+/* Grille asymétrique — carte principale plus large */
 .home-learn-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr;
@@ -65,12 +68,14 @@
   text-align: left;
 }
 
-/* Learn cards */
+/* ── Cartes "Three Ways to Learn" ────────────────────────────────────────── */
+
 .learn-card {
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
+/* Carte principale — fond texte plein */
 .learn-card--featured {
   background: var(--color-text);
   color: var(--color-bg);
@@ -100,6 +105,7 @@
   font-family: var(--font-body);
 }
 
+/* Adaptation thème sombre */
 [data-theme="dark"] .learn-card--featured {
   background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
@@ -148,6 +154,7 @@
   stroke: rgba(255, 255, 255, 0.65);
 }
 
+/* Cartes secondaires — même traitement fond sombre */
 .learn-card--dark {
   background: var(--color-text);
   border-radius: var(--radius-lg);
@@ -186,6 +193,7 @@
   color: var(--color-text-muted);
 }
 
+/* Lien "Explore" en bas des cartes secondaires */
 .learn-card-link {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.38);
@@ -224,6 +232,7 @@
   justify-content: center;
 }
 
+/* Section CTA communautaire */
 .home-community {
   text-align: center;
   padding: 6rem 1.5rem 0;
@@ -249,6 +258,7 @@
   gap: 0.75rem;
   justify-content: center;
 }
+/* Bannière photo pleine largeur sous le CTA */
 .home-community-image {
   width: 100%;
   max-width: var(--max-width);
@@ -305,6 +315,7 @@
   margin-right: auto;
 }
 
+/* Dropdown de filtre par catégorie */
 .events-filter-row {
   display: flex;
   align-items: center;
@@ -356,6 +367,7 @@
   color: var(--color-text);
   background: var(--color-surface);
 }
+/* Catégorie active en gras */
 .events-filter-item--active {
   font-weight: 600;
   color: var(--color-text);
@@ -380,6 +392,7 @@
   height: 13px;
 }
 
+/* CTA bannière en bas de page Events */
 .events-cta {
   text-align: center;
   padding: 6rem 1.5rem 0;
@@ -414,6 +427,7 @@
   margin-top: 3rem;
 }
 
+/* Bloc CTA en bas de la FAQ */
 .faq-cta {
   text-align: center;
   padding: 2.5rem 0;
@@ -467,6 +481,7 @@
   flex-direction: column;
   gap: 2rem;
 }
+/* Bannière image arrondie */
 .event-detail-banner img {
   width: 100%;
   height: 420px;
@@ -484,7 +499,7 @@
   font-size: 1rem;
   line-height: 1.85;
   color: var(--color-text-muted);
-  white-space: pre-line;
+  white-space: pre-line; /* Préserve les sauts de ligne du contenu */
   max-width: 740px;
 }
 
@@ -513,7 +528,7 @@
   font-weight: 400;
 }
 
-/* Legacy selectors kept for compatibility */
+/* Sélecteurs legacy — conservés pour compatibilité */
 .event-detail-likes {
   display: flex;
   align-items: center;
@@ -543,6 +558,7 @@
   gap: 0.85rem;
 }
 
+/* Invite à se connecter pour commenter */
 .event-detail-login-hint {
   display: flex;
   align-items: center;
@@ -573,6 +589,7 @@
   opacity: 0.7;
 }
 
+/* Carte de commentaire individuelle */
 .event-detail-comment {
   padding: 1.1rem 1.25rem;
   border: 1px solid var(--color-border);
@@ -592,6 +609,7 @@
   align-items: center;
   gap: 0.65rem;
 }
+/* Avatar avec initiale — fond texte inversé */
 .event-detail-comment-avatar {
   width: 30px;
   height: 30px;
@@ -667,6 +685,7 @@
   margin-bottom: 1.75rem;
 }
 
+/* Grille asymétrique — carte principale plus large */
 .personalities-categories-grid {
   display: grid;
   grid-template-columns: 1.8fr 1fr 1fr;
@@ -674,6 +693,7 @@
   margin-top: 2rem;
 }
 
+/* Carte de catégorie cliquable — fond texte plein */
 .personalities-category-card {
   background: var(--color-text);
   color: var(--color-bg);
@@ -693,6 +713,7 @@
 .personalities-category-card:hover {
   opacity: 0.88;
 }
+/* Contour sur la carte active */
 .personalities-category-card--active {
   outline: 2px solid var(--color-text);
   outline-offset: 3px;
@@ -772,6 +793,7 @@
   color: var(--color-text-subtle);
 }
 
+/* Layout Legends — colonne gauche sticky + liste droite */
 .personalities-legends-layout {
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -791,6 +813,7 @@
   flex-direction: column;
 }
 
+/* Liste de personnalités avec séparateurs */
 .personalities-list {
   display: flex;
   flex-direction: column;
@@ -858,7 +881,7 @@
   color: var(--color-text);
 }
 
-/* Nav pills */
+/* Pills de filtre de catégorie dans la colonne gauche */
 .personalities-nav-pills {
   display: flex;
   flex-wrap: wrap;
@@ -883,12 +906,14 @@
   color: var(--color-text);
   border-color: var(--color-border-strong);
 }
+/* Pill active — fond inversé */
 .personalities-nav-pill--active {
   background: var(--color-text);
   color: var(--color-bg);
   border-color: var(--color-text);
 }
 
+/* CTA bannière en bas de page Personalities */
 .personalities-cta {
   text-align: center;
   padding: 6rem 1.5rem 0;
@@ -923,13 +948,14 @@
    PROFILE PAGE
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* Layout flex identique à l'admin — sidebar + contenu */
 .profile-layout {
   display: flex;
   min-height: calc(100vh - var(--navbar-height));
   background: var(--color-bg-alt);
 }
 
-/* Legacy hero (ancienne version) */
+/* Sélecteurs legacy hero — conservés pour compatibilité */
 .profile-hero {
   display: flex;
   flex-direction: column;
@@ -958,6 +984,7 @@
   font-weight: 600;
   font-family: var(--font-body);
 }
+/* Badge ADMIN — fond texte inversé */
 .profile-badge {
   background: var(--color-text);
   color: var(--color-bg);
@@ -980,7 +1007,7 @@
   gap: 0.75rem;
 }
 
-/* Sidebar identity */
+/* Identité dans la sidebar */
 .profile-sidebar-identity {
   display: flex;
   flex-direction: column;
@@ -1030,7 +1057,7 @@
   word-break: break-all;
 }
 
-/* Overview hero */
+/* Carte d'identité principale dans la section Overview */
 .profile-overview-hero {
   display: flex;
   align-items: center;
@@ -1088,7 +1115,7 @@
   color: var(--color-text-subtle);
 }
 
-/* Quick stats */
+/* Compteurs rapides likes + commentaires */
 .profile-quick-stats {
   display: flex;
   gap: 1rem;
@@ -1120,7 +1147,7 @@
   letter-spacing: 0.12rem;
 }
 
-/* Admin stats */
+/* Statistiques globales de la plateforme — admins uniquement */
 .profile-admin-stats {
   padding: 2rem 0;
 }
@@ -1241,9 +1268,10 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   AUTH PAGES
+   PAGES AUTH
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* Centrage vertical pleine page */
 .auth-page {
   min-height: calc(100vh - var(--navbar-height));
   display: flex;
@@ -1264,7 +1292,7 @@
   flex-direction: column;
   gap: 1.5rem;
 }
-/* Legacy selectors */
+/* Sélecteurs legacy */
 .auth-card h1 {
   font-family: var(--font-display);
   font-size: 2rem;
@@ -1287,7 +1315,7 @@
   text-underline-offset: 3px;
 }
 
-/* New selectors (LoginPage / RegisterPage refactorisés) */
+/* Sélecteurs actuels (LoginPage / RegisterPage) */
 .auth-card-header {
   display: flex;
   flex-direction: column;
@@ -1347,6 +1375,7 @@
   .personalities-categories-grid {
     grid-template-columns: 1fr 1fr;
   }
+  /* Empile colonne gauche sticky + liste */
   .personalities-legends-layout {
     grid-template-columns: 1fr;
     gap: 2rem;
@@ -1374,6 +1403,7 @@
   .profile-liked-events {
     grid-template-columns: repeat(2, 1fr);
   }
+  /* Sidebar masquée sur mobile */
   .profile-layout .admin-sidebar {
     display: none;
   }
