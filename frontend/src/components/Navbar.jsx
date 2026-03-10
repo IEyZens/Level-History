@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../api/auth";
+import logo from "../assets/logo.svg";
 import { useAuth, useTheme } from "../context/AuthContext";
 
 /**
@@ -37,7 +38,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-brand">
-        <span className="navbar-brand-logo">Logo</span>
+        <img src={logo} alt="Level History" className="navbar-logo" />
       </Link>
 
       <div className="navbar-links">

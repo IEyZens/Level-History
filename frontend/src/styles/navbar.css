@@ -24,12 +24,11 @@
   flex-shrink: 0;
   text-decoration: none;
 }
-/* Logo en police Pacifico */
-.navbar-brand-logo {
-  font-family: var(--font-logo);
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: var(--color-text);
+
+.navbar-logo {
+  height: 50px;
+  width: auto;
+  display: block;
 }
 
 .navbar-links {
@@ -230,10 +229,11 @@
   margin-right: auto;
 }
 
-.footer-logo {
-  font-family: var(--font-logo);
-  font-size: 1.75rem;
-  color: var(--color-text);
+.footer-logo-img {
+  height: 50px;
+  
+  width: auto;
+  display: block;
 }
 
 .footer-nav {

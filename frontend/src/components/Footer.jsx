@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "../assets/logo.svg";
 
 /**
  * Pied de page global de l'application
@@ -8,8 +9,8 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-main">
-        <Link to="/" className="footer-logo">
-          Logo
+        <Link to="/">
+          <img src={logo} alt="Level History" className="footer-logo-img" />
         </Link>
         <nav className="footer-nav">
           <Link to="/">Home</Link>
