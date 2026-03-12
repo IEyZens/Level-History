@@ -142,7 +142,7 @@ levelhistory/
   - Zod (payload validation)
 
 - **Testing**:
-  - Bruno (REST client for backend endpoint testing)
+  - Vitest (backend endpoint testing)
   - Manual UAT (frontend — cross-browser, responsive)
 
 ---
