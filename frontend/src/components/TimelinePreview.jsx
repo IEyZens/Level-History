@@ -10,7 +10,8 @@ export default function TimelinePreview({ events }) {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   // Limite l'affichage aux 5 premiers événements
-  const previewEvents = events.slice(0, 5);
+  const [isMobile] = useState(() => window.innerWidth < 768);
+  const previewEvents = events.slice(0, isMobile ? 3 : 5);
 
   return (
     <div className="timeline-preview-wrapper">

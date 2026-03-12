@@ -117,6 +117,17 @@
   color: var(--color-text-muted);
 }
 
+[data-theme="dark"] .personalities-nav-pill--active {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+[data-theme="dark"] .personalities-nav-pill {
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
 .learn-card-label {
   font-size: 0.68rem;
   font-weight: 600;
@@ -910,6 +921,7 @@
 .personalities-nav-pill--active {
   background: var(--color-text);
   color: var(--color-bg);
+  color: #f8f7f5;
   border-color: var(--color-text);
 }
 
